@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+</head>
+<body>
+    {% if exam_list %}
+    <p>Exams list:</p>
+    <ul>
+    {% for exam in exam_list %}
+        <li><a href="{% url 'exams:exam' exam %}">{{ exam }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No exams are available.</p>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ exam_name }}</title>
+</head>
+<body>
+    <form action="{% url 'exams:exam_results' exam_name %}" method="post">
+        {% csrf_token %}
+        {% for question in question_data %}
+            <p>{{ question.question_text }} {{ forloop.counter }}</p>
+
+            {% for variant in question.variants %}
+                <input type="checkbox" id="{{ forloop.parentloop.counter }}" name="{{ question.question_text }}" value="{{ forloop.counter }}">
+                <label for="{{ forloop.parentloop.counter }}">{{ variant }} {{ forloop.counter }}</label><br>
+            {% endfor %}
+        {% endfor %}
+        <br><br>
+        <input type="submit" value="Finish exam">
+    </form>
+</body>
+</html>
