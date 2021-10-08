@@ -1,19 +1,24 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Home</title>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
 </head>
 <body>
+    {% include 'exams/navigation_bar.html' %}
     {% if exam_list %}
-    <p>Exams list:</p>
-    <ul>
-    {% for exam in exam_list %}
-        <li><a href="{% url 'exams:exam' exam %}">{{ exam }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No exams are available.</p>
-{% endif %}
+    <div class="list-group w-50 ms-2 mt-2">
+        <h3>Exams list</h3>
+        {% for exam_in_list in exam_list %}
+        <a href="{% url 'exams:exam' exam_in_list %}" class="list-group-item list-group-item-action">{{ exam_in_list }}</a>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p>No exams are available.</p>
+    {% endif %}
 </body>
 </html>
