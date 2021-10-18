@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LoginView, LogoutView
 from django.http import Http404
 from django.shortcuts import render
 
@@ -11,6 +12,17 @@ def index(request):
         'exam_list': exam_list
     }
     return render(request, 'exams/index.html', context)
+
+
+class Login(LoginView):
+    template_name = 'exams/login.html'
+    redirect_authenticated_user = True
+    next = 'exams/index.html'
+    redirect_field_name = 'exams/index.html'
+
+
+class Logout(LogoutView):
+    pass
 
 
 def exam(request, exam_name):

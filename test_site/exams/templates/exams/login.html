@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+<body>
+{% include 'exams/navigation_bar.html' %}
+<form action="{% url 'exams:login' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% url 'exams:index' %}">
+    <h5 class="ms-2">Please enter you user name and password</h5>
+    <div class="input-group ms-2 mt-2 w-50">
+        <span class="input-group-text w-25" id="username-span">{{ form.username.label_tag }}</span>
+        <input class="form-control" type="text" id="username" name="username">
+    </div>
+    <div class="input-group ms-2 mt-2 w-50">
+        <span class="input-group-text w-25" id="password-span">{{ form.password.label_tag }}</span>
+        <input class="form-control" type="password" id="password" name="password">
+    </div>
+    <div class="input-group ms-2 mt-2 w-50">
+        <button type="submit" class="btn btn-primary w-25">Login</button>
+    </div>
+
+</form>
+</body>
+</html>

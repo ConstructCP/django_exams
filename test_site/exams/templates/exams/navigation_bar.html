@@ -3,8 +3,17 @@
         <li class="nav-item ms-1">
             <a class="nav-link" href="{% url 'exams:index' %}">Home</a>
         </li>
+        {% if request.user.is_authenticated %}
         <li class="nav-item ms-1">
-          <a class="nav-link disabled" href="#">Inactive link</a>
+            <a class="nav-link disabled" href="{% url 'exams:index' %}">{{ request.user.name }}</a>
         </li>
+        <li class="nav-item ms-1">
+            <a class="nav-link" href="{% url 'exams:logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item ms-1">
+            <a class="nav-link" href="{% url 'exams:login' %}">Login</a>
+        </li>
+        {% endif %}
     </ul>
 </nav>
