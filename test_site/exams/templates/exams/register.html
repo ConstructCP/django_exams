@@ -21,6 +21,13 @@
         <span class="input-group-text w-25" id="password-span">{{ form.password.label_tag }}</span>
         <input class="form-control" type="password" id="password" name="password">
     </div>
+    {% if error_message %}
+    {% for line in error_message %}
+    <div class="alert alert-warning ms-2 mt-2 w-50" role="alert">
+        <small>{{ line }}</small>
+    </div>
+    {% endfor %}
+    {% endif %}
     <div class="input-group ms-2 mt-2 w-50">
         <button type="submit" class="btn btn-primary w-25">Register</button>
     </div>

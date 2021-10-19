@@ -1,7 +1,9 @@
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.urls import reverse
 
 from .forms import RegistrationForm
@@ -29,12 +31,18 @@ class Logout(LogoutView):
 
 
 def register(request):
-    redirect_if_logged_in(request)
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('exams:index'))
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            user = User.objects.create_user(username=request.POST['username'],
-                                            password=request.POST['password'])
+            username = request.POST['username']
+            password = request.POST['password']
+            try:
+                validate_password(user=username, password=password)
+            except ValidationError as e:
+                return render(request, 'exams/register.html', {'form': form, 'error_message': e})
+            user = User.objects.create_user(username=username, password=password)
             user.save()
             return HttpResponseRedirect(reverse('exams:login'))
     else:
@@ -78,8 +86,3 @@ def questions_stub():
         }
         question_data.append(data)
     return question_data
-
-
-def redirect_if_logged_in(request, redirect_to='exams:index'):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse(redirect_to))
