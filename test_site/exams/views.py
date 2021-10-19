@@ -1,6 +1,10 @@
 from django.contrib.auth.views import LoginView, LogoutView
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+from .forms import RegistrationForm
 
 
 exams = ('Exam1', 'Exam2')  # stub variable
@@ -17,12 +21,26 @@ def index(request):
 class Login(LoginView):
     template_name = 'exams/login.html'
     redirect_authenticated_user = True
-    next = 'exams/index.html'
-    redirect_field_name = 'exams/index.html'
+    next_page = 'exams:index'
 
 
 class Logout(LogoutView):
-    pass
+    next_page = 'exams:login'
+
+
+def register(request):
+    redirect_if_logged_in(request)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = User.objects.create_user(username=request.POST['username'],
+                                            password=request.POST['password'])
+            user.save()
+            return HttpResponseRedirect(reverse('exams:login'))
+    else:
+        form = RegistrationForm()
+
+    return render(request, 'exams/register.html', {'form': form})
 
 
 def exam(request, exam_name):
@@ -60,3 +78,8 @@ def questions_stub():
         }
         question_data.append(data)
     return question_data
+
+
+def redirect_if_logged_in(request, redirect_to='exams:index'):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse(redirect_to))
