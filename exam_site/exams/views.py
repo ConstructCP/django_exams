@@ -1,5 +1,4 @@
 from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import Http404, HttpResponseRedirect
@@ -7,6 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import RegistrationForm
+from .models import ApplicationUser
 
 
 exams = ('Exam1', 'Exam2')  # stub variable
@@ -42,7 +42,7 @@ def register(request):
                 validate_password(user=username, password=password)
             except ValidationError as e:
                 return render(request, 'exams/register.html', {'form': form, 'error_message': e})
-            user = User.objects.create_user(username=username, password=password)
+            user = ApplicationUser.objects.create_user(username=username, password=password)
             user.save()
             return HttpResponseRedirect(reverse('exams:login'))
     else:

@@ -1,8 +1,10 @@
 from django import forms
 
+from .models import ApplicationUser
 
-class RegistrationForm(forms.Form):
-    username = forms.CharField(label='User name', max_length=100)
-    password = forms.CharField(
-        label='Password', widget=forms.PasswordInput,
-        validators=[])
+
+class RegistrationForm(forms.ModelForm):
+    class Meta:
+        model = ApplicationUser
+        fields = ['username', 'password']
+        widgets = {'password': forms.PasswordInput()}
