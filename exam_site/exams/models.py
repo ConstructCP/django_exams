@@ -28,7 +28,7 @@ class ApplicationUser(AbstractBaseUser):
     objects = ApplicationUserManager()
 
     def __str__(self):
-        return self.username + '_' + self.password
+        return self.username
 
     def has_perm(self, perm, obj=None):
         return self.is_admin
@@ -41,3 +41,18 @@ class ApplicationUser(AbstractBaseUser):
         return self.is_admin
 
 
+class Exam(models.Model):
+    title = models.CharField(max_length=200)
+
+
+class Question(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    title = models.CharField(max_length=1000)
+    text = models.CharField(max_length=5000)
+    correct_answer = models.ForeignKey('QuestionVariant', on_delete=models.DO_NOTHING)
+    answer_explanation = models.CharField(max_length=5000)
+
+
+class QuestionVariant(models.Model):
+    choice_letter = models.CharField(max_length=1)
+    text = models.CharField(max_length=1000)
