@@ -49,10 +49,11 @@ class Question(models.Model):
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     title = models.CharField(max_length=1000)
     text = models.CharField(max_length=5000)
-    correct_answer = models.ForeignKey('QuestionVariant', on_delete=models.DO_NOTHING)
     answer_explanation = models.CharField(max_length=5000)
 
 
 class QuestionVariant(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_letter = models.CharField(max_length=1)
     text = models.CharField(max_length=1000)
+    is_correct_answer = models.BooleanField(default=False)

@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import ApplicationUser
+from .models import ApplicationUser, Question, QuestionVariant, Exam
 
 
 class UserCreationForm(forms.ModelForm):
@@ -52,5 +52,32 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 
+class QuestionVariantInline(admin.TabularInline):
+    model = QuestionVariant
+    extra = 4
+    min_num = 2
+    max_num = 4
+
+
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ['exam', 'title', 'text', 'answer_explanation']
+    fieldsets = [
+        ('Exam', {'fields': ['exam']}),
+        ('Question', {'fields': ['title', 'text']}),
+        ('Answer comment', {'fields': ['answer_explanation']})
+    ]
+    inlines = [QuestionVariantInline]
+    list_filter = ['exam']
+    search_fields = ['exam']
+
+
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ['title']
+    search_fields = ['title']
+
+
 admin.site.register(ApplicationUser, UserAdmin)
 admin.site.unregister(Group)
+admin.site.register(Exam, ExamAdmin)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionVariant)
