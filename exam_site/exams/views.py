@@ -1,23 +1,21 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.http import Http404, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views import generic
 
 from .forms import RegistrationForm
-from .models import ApplicationUser
+from .models import ApplicationUser, Exam, Question, QuestionVariant
 
 
-exams = ('Exam1', 'Exam2')  # stub variable
+class IndexView(generic.ListView):
+    template_name = 'exams/index.html'
+    context_object_name = 'exam_list'
 
-
-def index(request):
-    exam_list = exams
-    context = {
-        'exam_list': exam_list
-    }
-    return render(request, 'exams/index.html', context)
+    def get_queryset(self):
+        return Exam.objects.all()
 
 
 class Login(LoginView):
@@ -51,38 +49,52 @@ def register(request):
     return render(request, 'exams/register.html', {'form': form})
 
 
-def exam(request, exam_name):
-    if exam_name not in exams:
-        raise Http404(f'No exam with name "{exam_name}" found.')
-    question_data = questions_stub()
-    return render(request, 'exams/exam.html', {'question_data': question_data, 'exam_name': exam_name})
+class ExamView(generic.TemplateView):
+    template_name = 'exams/exam.html'
+
+    def get_context_data(self, **kwargs):
+        exam_id = self.kwargs['exam_id']
+        exam = Exam.objects.get(id=exam_id)
+        questions = Question.objects.filter(exam__id=exam_id)
+        for question in questions:
+            question_id = question.id
+            answer_variants = QuestionVariant.objects.filter(question__id=question_id)
+            has_one_correct_answer = QuestionVariant.objects.filter(question__id=question_id, is_correct_answer=True).count() == 1
+            question.answer_variants = answer_variants
+            question.has_one_correct_answer = has_one_correct_answer
+
+        context = super().get_context_data(**kwargs)
+        context['exam'] = exam
+        context['questions'] = questions
+        return context
 
 
-def exam_result(request, exam_name):
-    if exam_name not in exams:
-        raise Http404(f'No exam with name "{exam_name}" found.')
-    question_data = questions_stub()
-    correct_answers = 0
-    for question in question_data:
-        question_text = question['question_text']
-        given_answer = request.POST[question_text]
-        if int(given_answer) - 1 == question['correct_answer']:
-            correct_answers += 1
-    score = correct_answers / len(question_data)
-    score_percent = int(score * 100)
-    return render(request, 'exams/exam_results.html',
-                  {'score': score_percent, 'exam_name': exam_name})
-
-
-def questions_stub():
-    questions = ['question1', 'question2', 'question3']
-    variants = ['variant1', 'variant2']
-    question_data = []
+def exam_result(request, exam_id):
+    exam = Exam.objects.get(id=exam_id)
+    questions = Question.objects.filter(exam__id=exam_id)
+    number_of_correct_answers = 0
     for question in questions:
-        data = {
-            'question_text': question,
-            'variants': variants,
-            'correct_answer': 0
-        }
-        question_data.append(data)
-    return question_data
+        question_id = question.id
+        answer_variants = QuestionVariant.objects.filter(question__id=question_id)
+        given_answers = request.POST.getlist(str(question.id))
+        answered_correctly = True
+        for answer_variant in answer_variants:
+            answer_variant.was_chosen = answer_variant.choice_letter in given_answers
+            if ((answer_variant.was_chosen and not answer_variant.is_correct_answer) or
+                    (not answer_variant.was_chosen and answer_variant.is_correct_answer)):
+                answered_correctly = False
+        if answered_correctly:
+            number_of_correct_answers += 1
+            question.answered_correctly = True
+        else:
+            question.answered_correctly = False
+        question.answer_variants = answer_variants
+        question.given_answers = given_answers
+        question.has_one_correct_answer = QuestionVariant.objects.filter(
+            question__id=question_id, is_correct_answer=True
+        ).count() == 1
+
+    score = number_of_correct_answers / len(questions)
+    score_percent = int(score * 100)
+    context = {'exam': exam, 'questions': questions, 'score': score_percent}
+    return render(request, 'exams/exam_results.html', context=context)

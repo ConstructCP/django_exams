@@ -7,12 +7,46 @@
     <title>Exam Results</title>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </head>
 <body>
-    {% include 'exams/navigation_bar.html' %}
-    <div class="container border ms-2 mt-2">
-        <p>Exam: {{ exam_name }}</p>
-        <p>Score: {{ score }}%</p>
+{% include 'exams/navigation_bar.html' %}
+<div class="container border ms-2 mt-2">
+    <h3>Exam: {{ exam.title }}</h3>
+    <h5>Score: {{ score }}%</h5>
+</div>
+{% for question in questions %}
+<div class="container border mt-2 ms-2 mb-2">
+    <h5>{{ forloop.counter }}. {{ question.title }}</h5>
+    <p>{{ question.text }}</p>
+    <ul class="list-group w-50 mt-2 ms-2 mb-2">
+        {% for variant in question.answer_variants %}
+        <li class="list-group-item">
+            <input class="form-check-input me-1"
+                   type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
+                   id="{{ question.id }}"
+                   name="{{ question.id }}"
+                   value="{{ variant.choice_letter }}"
+                   disabled="disabled"
+                   {% if variant.was_chosen %}checked{% endif %}>
+            <label for="{{ question.id }}">
+                {{ variant.choice_letter }} - {{ variant.text }}
+            </label><br>
+        </li>
+        {% endfor %}
+    </ul>
+    <p>
+        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse{{ question.id }}" role="button"
+           aria-expanded="false" aria-controls="collapse{{ question.id }}">
+            Question answer explanation:
+        </a>
+    </p>
+    <div class="collapse mb-2" id="collapse{{ question.id }}">
+        <div class="card card-body">
+            {{ question.answer_explanation }}
+        </div>
     </div>
+</div>
+{% endfor %}
 </body>
 </html>
