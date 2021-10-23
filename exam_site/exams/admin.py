@@ -3,19 +3,22 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from django.core.exceptions import ValidationError
 
 from .models import ApplicationUser, Question, QuestionVariant, Exam
 
 
 class UserCreationForm(forms.ModelForm):
+    """
+    Form for user creation on admin site
+    """
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
 
     class Meta:
         model = ApplicationUser
         fields = ('username', 'password')
 
-    def save(self, commit=True):
+    def save(self, commit: bool = True) -> ApplicationUser:
+        """ Save new user in admin site """
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
         if commit:
@@ -24,6 +27,7 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
+    """ Form for user updating on admin site """
     password = ReadOnlyPasswordHashField()
 
     class Meta:
@@ -32,6 +36,7 @@ class UserChangeForm(forms.ModelForm):
 
 
 class UserAdmin(BaseUserAdmin):
+    """ Representation of application user for admin site """
     form = UserChangeForm
     add_form = UserCreationForm
 
@@ -53,6 +58,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 class QuestionVariantInline(admin.TabularInline):
+    """ Representation of question answer variant for admin site """
     model = QuestionVariant
     extra = 4
     min_num = 2
@@ -60,6 +66,7 @@ class QuestionVariantInline(admin.TabularInline):
 
 
 class QuestionAdmin(admin.ModelAdmin):
+    """ Representation of exam question for admin site """
     list_display = ['exam', 'title', 'text', 'answer_explanation']
     fieldsets = [
         ('Exam', {'fields': ['exam']}),
@@ -72,6 +79,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 class ExamAdmin(admin.ModelAdmin):
+    """ Representation of exam for admin site """
     list_display = ['title']
     search_fields = ['title']
 

@@ -1,7 +1,9 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseRedirect
+from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import QuerySet
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
@@ -11,24 +13,33 @@ from .models import ApplicationUser, Exam, Question, QuestionVariant
 
 
 class IndexView(generic.ListView):
+    """ View for index page of the application"""
     template_name = 'exams/index.html'
     context_object_name = 'exam_list'
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
+        """ Returns list of all exams """
         return Exam.objects.all()
 
 
 class Login(LoginView):
+    """ View for login page """
     template_name = 'exams/login.html'
     redirect_authenticated_user = True
     next_page = 'exams:index'
 
 
 class Logout(LogoutView):
+    """ View for logout page """
     next_page = 'exams:login'
 
 
-def register(request):
+def register(request: WSGIRequest) -> HttpResponse:
+    """
+    View for register page.
+    For GET request - display registration form
+    For POST request - save user with provided name and password and redirect to login page
+    """
     if request.user.is_authenticated:
         return HttpResponseRedirect(reverse('exams:index'))
     if request.method == 'POST':
@@ -50,9 +61,16 @@ def register(request):
 
 
 class ExamView(generic.TemplateView):
+    """ View for exam """
     template_name = 'exams/exam.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
+        """
+        Returns context for template with exam and question of this exam.
+        Adds to each question
+            - answer variants
+            - boolean indicating whether number of correct answers is 1 or more
+        """
         exam_id = self.kwargs['exam_id']
         exam = Exam.objects.get(id=exam_id)
         questions = Question.objects.filter(exam__id=exam_id)
@@ -69,7 +87,16 @@ class ExamView(generic.TemplateView):
         return context
 
 
-def exam_result(request, exam_id):
+def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
+    """
+    View for exam results.
+    Returns context for template with exam, question of this exam and exam score.
+    Adds to each question:
+        - answer variants
+        - answers provided by the user
+        - boolean indicating whether number of correct answers is 1 or more
+        - boolean indicating whether user's answers were correct
+    """
     exam = Exam.objects.get(id=exam_id)
     questions = Question.objects.filter(exam__id=exam_id)
     number_of_correct_answers = 0
