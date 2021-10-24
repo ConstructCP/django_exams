@@ -58,15 +58,14 @@ class UserAdmin(BaseUserAdmin):
 
 
 class QuestionVariantInline(admin.TabularInline):
-    """ Representation of question answer variant for admin site """
+    """ Representation of question_json answer variant for admin site """
     model = QuestionVariant
-    extra = 4
+    extra = 2
     min_num = 2
-    max_num = 4
 
 
 class QuestionAdmin(admin.ModelAdmin):
-    """ Representation of exam question for admin site """
+    """ Representation of exam question_json for admin site """
     list_display = ['exam', 'title', 'text', 'answer_explanation']
     fieldsets = [
         ('Exam', {'fields': ['exam']}),

@@ -61,7 +61,7 @@ class Exam(models.Model):
 
 
 class Question(models.Model):
-    """ Model for question in an exam """
+    """ Model for question_json in an exam """
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     title = models.CharField(max_length=1000)
     text = models.CharField(max_length=5000)
@@ -72,7 +72,7 @@ class Question(models.Model):
 
 
 class QuestionVariant(models.Model):
-    """ Model for answer variant for exam question """
+    """ Model for answer variant for exam question_json """
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_letter = models.CharField(max_length=1)
     text = models.CharField(max_length=1000)

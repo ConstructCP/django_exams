@@ -5,10 +5,10 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UploadForm
 from .models import ApplicationUser, Exam, Question, QuestionVariant
 
 
@@ -66,8 +66,8 @@ class ExamView(generic.TemplateView):
 
     def get_context_data(self, **kwargs) -> dict:
         """
-        Returns context for template with exam and question of this exam.
-        Adds to each question
+        Returns context for template with exam and question_json of this exam.
+        Adds to each question_json
             - answer variants
             - boolean indicating whether number of correct answers is 1 or more
         """
@@ -90,8 +90,8 @@ class ExamView(generic.TemplateView):
 def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
     """
     View for exam results.
-    Returns context for template with exam, question of this exam and exam score.
-    Adds to each question:
+    Returns context for template with exam, question_json of this exam and exam score.
+    Adds to each question_json:
         - answer variants
         - answers provided by the user
         - boolean indicating whether number of correct answers is 1 or more
@@ -125,3 +125,13 @@ def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
     score_percent = int(score * 100)
     context = {'exam': exam, 'questions': questions, 'score': score_percent}
     return render(request, 'exams/exam_results.html', context=context)
+
+
+class UploadView(generic.FormView):
+    template_name = 'exams/upload.html'
+    form_class = UploadForm
+    success_url = reverse_lazy('exams:index')
+
+    def form_valid(self, form):
+        form.save_exam_data(form.cleaned_data)
+        return super().form_valid(form)
