@@ -23,6 +23,11 @@
         <input class="form-control" type="password" id="password" name="password">
     </div>
     {% if form.errors %}
+    {% for non_field_error in form.non_field_errors %}
+    <div class="alert alert-warning ms-2 mt-2 w-50" role="alert">
+        <small>{{ non_field_error }}</small>
+    </div>
+    {% endfor %}
     {% for field in form %}
     {% for error in field.errors %}
     <div class="alert alert-warning ms-2 mt-2 w-50" role="alert">
