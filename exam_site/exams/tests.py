@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import ApplicationUser, Exam, Question, QuestionVariant
+from .models import ApplicationUser, Exam
 
 
 def create_exam(title):
