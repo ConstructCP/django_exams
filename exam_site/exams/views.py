@@ -77,7 +77,9 @@ class ExamView(generic.TemplateView):
         for question in questions:
             question_id = question.id
             answer_variants = QuestionVariant.objects.filter(question__id=question_id)
-            has_one_correct_answer = QuestionVariant.objects.filter(question__id=question_id, is_correct_answer=True).count() == 1
+            correct_answers_num = QuestionVariant.objects.filter(
+                question__id=question_id, is_correct_answer=True).count()
+            has_one_correct_answer = correct_answers_num == 1
             question.answer_variants = answer_variants
             question.has_one_correct_answer = has_one_correct_answer
 
