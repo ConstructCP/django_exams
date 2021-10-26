@@ -135,3 +135,7 @@ class UploadView(generic.FormView):
     def form_valid(self, form):
         form.save_exam_data(form.cleaned_data)
         return super().form_valid(form)
+
+
+def health_check_view(request: WSGIRequest):
+    return HttpResponse('OK')

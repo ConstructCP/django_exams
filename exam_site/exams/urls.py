@@ -9,6 +9,7 @@ urlpatterns = [
     path('logout/', views.Logout.as_view(), name='logout'),
     path('register/', views.register, name='register'),
     path('upload/', views.UploadView.as_view(), name='upload'),
+    path('healthcheck/', views.health_check_view, name='healthcheck'),
     path('<exam_id>/', views.ExamView.as_view(), name='exam'),
     path('<exam_id>/results', views.exam_result, name='exam_results'),
 ]
