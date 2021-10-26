@@ -4,7 +4,5 @@ services:
   web:
     build: .
     command: python exam_site/manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/django_exams
     ports:
       - "8000:8000"
