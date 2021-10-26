@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker-compose up
+      run: docker-compose up -d
       
     - name: Application Health Check
       run: curl 127.0.0.1:8000/exams/healthcheck 
