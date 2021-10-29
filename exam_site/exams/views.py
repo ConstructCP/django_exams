@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -8,7 +10,7 @@ from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from .forms import RegistrationForm, UploadForm
+from .forms import RegistrationForm, UploadForm, ExamSetupForm
 from .models import ApplicationUser, Exam, Question, QuestionVariant
 
 
@@ -60,20 +62,49 @@ def register(request: WSGIRequest) -> HttpResponse:
     return render(request, 'exams/register.html', {'form': form})
 
 
-class ExamView(generic.TemplateView):
-    """ View for exam """
-    template_name = 'exams/exam.html'
+class ExamSetupView(generic.FormView):
+    """ View for exam setup """
+    template_name = 'exams/exam_setup.html'
+    form_class = ExamSetupForm
+    question_number = None
+    success_url = 'exams:exam_take'
 
     def get_context_data(self, **kwargs) -> dict:
+        exam_id = self.kwargs['exam_id']
+        exam = Exam.objects.get(id=exam_id)
+        context = super().get_context_data(**kwargs)
+        context['exam'] = exam
+        return context
+
+    def form_valid(self, form) -> bool:
+        self.question_number = int(form.cleaned_data().get('question_number'))
+        return super().form_valid(form)
+
+
+class ExamTakeView(generic.View):
+    """ View for exam taking """
+    template_name = 'exams/exam_take.html'
+
+    def __init__(self, *args, **kwargs):
+        self._exam_id = None
+        super().__init__(*args, **kwargs)
+
+    def post(self, request: WSGIRequest, exam_id: str) -> HttpResponse:
         """
-        Returns context for template with exam and question_json of this exam.
+        Handle POST request. Return exam data in response. If question_quantity is less that amount of questions
+        in the exam - return question_quantity of random questions.
         Adds to each question_json
             - answer variants
             - boolean indicating whether number of correct answers is 1 or more
         """
-        exam_id = self.kwargs['exam_id']
+        question_quantity = int(request.POST['question_quantity'])
+        exam_id = int(exam_id)
         exam = Exam.objects.get(id=exam_id)
-        questions = Question.objects.filter(exam__id=exam_id)
+        questions = Question.objects.filter(exam_id=exam_id)
+        total_question_number = questions.count()
+        if question_quantity < total_question_number:
+            questions = random.sample(list(questions), question_quantity)
+
         for question in questions:
             question_id = question.id
             answer_variants = QuestionVariant.objects.filter(question__id=question_id)
@@ -83,10 +114,8 @@ class ExamView(generic.TemplateView):
             question.answer_variants = answer_variants
             question.has_one_correct_answer = has_one_correct_answer
 
-        context = super().get_context_data(**kwargs)
-        context['exam'] = exam
-        context['questions'] = questions
-        return context
+        context = {'exam': exam, 'questions': questions}
+        return render(request, 'exams/exam_take.html', context=context)
 
 
 def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
@@ -134,7 +163,7 @@ class UploadView(generic.FormView):
     form_class = UploadForm
     success_url = reverse_lazy('exams:index')
 
-    def form_valid(self, form):
+    def form_valid(self, form) -> bool:
         form.save_exam_data(form.cleaned_data)
         return super().form_valid(form)
 

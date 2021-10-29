@@ -14,7 +14,7 @@
     <div class="list-group w-50 ms-2 mt-2">
         <h3>Exams list</h3>
         {% for exam_in_list in exam_list %}
-        <a href="{% url 'exams:exam' exam_in_list.id %}" class="list-group-item list-group-item-action">{{ exam_in_list.title }}</a>
+        <a href="{% url 'exams:exam_setup' exam_in_list.id %}" class="list-group-item list-group-item-action">{{ exam_in_list.title }}</a>
         {% endfor %}
     </div>
     {% else %}

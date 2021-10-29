@@ -1,4 +1,6 @@
 import json
+import random
+
 from django import forms
 
 from .models import ApplicationUser, Exam, Question, QuestionVariant
@@ -10,6 +12,20 @@ class RegistrationForm(forms.ModelForm):
         model = ApplicationUser
         fields = ['username', 'password']
         widgets = {'password': forms.PasswordInput()}
+
+
+class ExamSetupForm(forms.Form):
+    question_number = forms.IntegerField(label='Question number')
+    
+    def __init__(self, *args, **kwargs):
+        super(ExamSetupForm, self).__init__(*args, **kwargs)
+        self.exam_id = kwargs.get('exam_id')
+
+    def clean_question_number(self):
+        cleaned_data = super(ExamSetupForm, self).clean()
+        questions_requested = int(cleaned_data['question_number'])
+        total_question_number = Question.objects.get(exam_id=self.exam_id).count()
+        return questions_requested <= total_question_number
 
 
 class UploadForm(forms.Form):

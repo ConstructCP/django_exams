@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ exam.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+<body>
+{% include 'exams/navigation_bar.html' %}
+<div class="container border ms-2 mt-2">
+    <form action="{% url 'exams:exam_take' exam.id %}" method="post">
+        {% csrf_token %}
+        <h3>{{ exam.title }} setup</h3>
+        <label for="question_num">How many questions do you want?</label>
+        <input class="ms-2" type="text" id="question_num" name="question_quantity"><br><br>
+        <input class="mb-2" type="submit" value="Take exam">
+    </form>
+</div>
+</body>
+</html>
