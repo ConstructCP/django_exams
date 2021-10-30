@@ -1,5 +1,4 @@
 import json
-import random
 
 from django import forms
 
@@ -16,7 +15,7 @@ class RegistrationForm(forms.ModelForm):
 
 class ExamSetupForm(forms.Form):
     question_number = forms.IntegerField(label='Question number')
-    
+
     def __init__(self, *args, **kwargs):
         super(ExamSetupForm, self).__init__(*args, **kwargs)
         self.exam_id = kwargs.get('exam_id')
