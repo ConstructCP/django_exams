@@ -1,15 +1,8 @@
-{% load static %}
+{% extends 'exams/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ exam.title }}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-</head>
-<body>
-{% include 'exams/navigation_bar.html' %}
+{% block title %}{{ exam.title }}{% endblock %}
+
+{% block content %}
 <div class="container border ms-2 mt-2">
     <form action="{% url 'exams:exam_take' exam.id %}" method="post">
         {% csrf_token %}
@@ -19,5 +12,4 @@
         <input class="mb-2" type="submit" value="Take exam">
     </form>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -1,24 +1,17 @@
-{% load static %}
+{% extends 'exams/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-</head>
-<body>
-    {% include 'exams/navigation_bar.html' %}
-    {% if exam_list %}
-    <div class="list-group w-50 ms-2 mt-2">
-        <h3>Exams list</h3>
-        {% for exam_in_list in exam_list %}
-        <a href="{% url 'exams:exam_setup' exam_in_list.id %}" class="list-group-item list-group-item-action">{{ exam_in_list.title }}</a>
-        {% endfor %}
-    </div>
-    {% else %}
-        <p>No exams are available.</p>
-    {% endif %}
-</body>
-</html>
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if exam_list %}
+<div class="list-group w-50 ms-2 mt-2">
+    <h3>Exams list</h3>
+    {% for exam_in_list in exam_list %}
+    <a href="{% url 'exams:exam_setup' exam_in_list.id %}" class="list-group-item list-group-item-action">
+        {{ exam_in_list.title }}</a>
+    {% endfor %}
+</div>
+{% else %}
+<p>No exams are available.</p>
+{% endif %}
+{% endblock %}

@@ -1,43 +1,34 @@
-{% load static %}
+{% extends 'exams/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ exam.title }}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-</head>
-<body>
-    {% include 'exams/navigation_bar.html' %}
-    <form action="{% url 'exams:exam_results' exam.id %}" method="post">
-        {% csrf_token %}
-        <div class="container border ms-2 mt-2">
-            <h3>{{ exam.title }}</h3>
-            {% for question in questions %}
-            <div class="container border mt-2 ms-2 mb-2">
-                <h5>{{ forloop.counter }}. {{ question.title }}</h5>
-                <p>{{ question.text }}</p>
-                <ul class="list-group w-50 mt-2 ms-2 mb-2">
-                    {% for variant in question.answer_variants %}
-                    <li class="list-group-item">
-                        <input class="form-check-input me-1"
-                               type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
-                               id="{{ question.id }}"
-                               name="{{ question.id }}"
-                               value="{{ variant.choice_letter }}">
-                        <label for="{{ question.id }}">
-                            {{ variant.choice_letter }} - {{ variant.text }}
-                        </label><br>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary btn-lg mt-3 mb-3">Submit results</button>
+{% block title %}{{ exam.title }}{% endblock %}
+
+{% block content %}
+<form action="{% url 'exams:exam_results' exam.id %}" method="post">
+    {% csrf_token %}
+    <div class="container border ms-2 mt-2">
+        <h3>{{ exam.title }}</h3>
+        {% for question in questions %}
+        <div class="container border mt-2 ms-2 mb-2">
+            <h5>{{ forloop.counter }}. {{ question.title }}</h5>
+            <p>{{ question.text }}</p>
+            <ul class="list-group w-50 mt-2 ms-2 mb-2">
+                {% for variant in question.answer_variants %}
+                <li class="list-group-item">
+                    <input class="form-check-input me-1"
+                           type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
+                           id="{{ question.id }}"
+                           name="{{ question.id }}"
+                           value="{{ variant.choice_letter }}">
+                    <label for="{{ question.id }}">
+                        {{ variant.choice_letter }} - {{ variant.text }}
+                    </label><br>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        <br><br>
-    </form>
-
-</body>
-</html>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-lg mt-3 mb-3">Submit results</button>
+    </div>
+    <br><br>
+</form>
+{% endblock %}

@@ -1,15 +1,8 @@
-{% load static %}
+{% extends 'exams/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-</head>
-<body>
-{% include 'exams/navigation_bar.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
 <form action="{% url 'exams:login' %}" method="post">
     {% csrf_token %}
     <input type="hidden" name="next" value="{% url 'exams:index' %}">
@@ -39,7 +32,5 @@
     <div class="input-group ms-2 mt-2 w-50">
         <button type="submit" class="btn btn-primary w-25">Login</button>
     </div>
-
 </form>
-</body>
-</html>
+{% endblock %}

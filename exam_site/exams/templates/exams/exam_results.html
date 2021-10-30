@@ -1,16 +1,8 @@
-{% load static %}
+{% extends 'exams/base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Exam Results</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-</head>
-<body>
-{% include 'exams/navigation_bar.html' %}
+{% block title %}Exam Results{% endblock %}
+
+{% block content %}
 <div class="container border ms-2 mt-2">
     <h3>Exam: {{ exam.title }}</h3>
     <h5>Score: {{ score }}%</h5>
@@ -48,5 +40,4 @@
     </div>
 </div>
 {% endfor %}
-</body>
-</html>
+{% endblock %}
