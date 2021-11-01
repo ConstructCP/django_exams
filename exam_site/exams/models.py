@@ -55,20 +55,59 @@ class ApplicationUser(AbstractBaseUser):
 class Exam(models.Model):
     """ Model for exam """
     title = models.CharField(max_length=200)
+    # source = models.CharField(max_length=200)
 
     def __str__(self) -> str:
         return str(self.title)
 
 
+class CustomDateTimeField(models.DateTimeField):
+    def value_to_string(self, obj):
+        val = self.value_from_object(obj)
+        if val:
+            val.replace(microsecond=0)
+            return val.isoformat('%Y-%m-%d_%H-%M-%S')
+        return ''
+
+
+class ExamResults(models.Model):
+    """ Model to save exam results in """
+    unique_id = models.CharField(max_length=100)
+    exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
+    taken_on = CustomDateTimeField(auto_now_add=True, unique=True)
+    score = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.exam.title} / user {self.user.username} ({self.taken_on})'
+
+    def save(self, *args, **kwargs):
+        self.unique_id = self.taken_on_as_str
+
+    @property
+    def taken_on_as_str(self):
+        return str(self.user) + '_' + str(self.taken_on)
+
+
 class Question(models.Model):
-    """ Model for question_json in an exam """
+    """ Model for single question in an exam """
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     title = models.CharField(max_length=1000)
     text = models.CharField(max_length=5000)
     answer_explanation = models.CharField(max_length=5000)
+    has_one_correct_answer = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return str(self.title)
+
+
+class QuestionRecorded(models.Model):
+    """ Model for storing questions from taken exam for exam history """
+    exam_result = models.ForeignKey(ExamResults, on_delete=models.DO_NOTHING)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.question} / {self.exam_result}'
 
 
 class QuestionVariant(models.Model):
@@ -80,3 +119,13 @@ class QuestionVariant(models.Model):
 
     def __str__(self) -> str:
         return f'{self.choice_letter}. {self.text}'
+
+
+class QuestionVariantAnswerRecorded(models.Model):
+    """ Model for storing chosen answer variants for exam history """
+    question_variant = models.ForeignKey(QuestionVariant, on_delete=models.DO_NOTHING)
+    question_recorded = models.ForeignKey(QuestionRecorded, on_delete=models.DO_NOTHING)
+    was_selected = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.question_variant} / {self.question_recorded}'

@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import ApplicationUser, Exam, Question, QuestionVariant
 
@@ -20,11 +21,13 @@ class ExamSetupForm(forms.Form):
         super(ExamSetupForm, self).__init__(*args, **kwargs)
         self.exam_id = kwargs.get('exam_id')
 
-    def clean_question_number(self):
+    def clean_question_number(self) -> bool:
         cleaned_data = super(ExamSetupForm, self).clean()
         questions_requested = int(cleaned_data['question_number'])
         total_question_number = Question.objects.get(exam_id=self.exam_id).count()
-        return questions_requested <= total_question_number
+        if questions_requested > total_question_number:
+            raise ValidationError('Requested number of questions exceeds number of questions in exam')
+        return questions_requested
 
 
 class UploadForm(forms.Form):

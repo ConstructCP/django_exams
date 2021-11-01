@@ -4,13 +4,19 @@
             <a class="nav-link" href="{% url 'exams:index' %}">Home</a>
         </li>
         {% if request.user.is_authenticated %}
-        <li class="nav-item ms-1">
-            <a class="nav-link disabled" href="{% url 'exams:index' %}">{{ request.user.username }}</a>
-        </li>
-        <li class="nav-item ms-1">
-            <a class="nav-link" href="{% url 'exams:logout' %}">Logout</a>
-        </li>
-        {% else %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+               aria-expanded="false">
+                {{ request.user.username }}
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li class="nav-item ms-1">
+                    <a class="nav-link" href="{% url 'exams:logout' %}">Logout</a>
+                </li>
+            </ul>
+            {% else %}
         <li class="nav-item ms-1">
             <a class="nav-link" href="{% url 'exams:login' %}">Login</a>
         </li>

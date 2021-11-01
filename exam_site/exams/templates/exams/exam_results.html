@@ -20,9 +20,9 @@
                    name="{{ question.id }}"
                    value="{{ variant.choice_letter }}"
                    disabled="disabled"
-                   {% if variant.was_chosen %}checked{% endif %}>
+                   {% if variant.was_selected %}checked{% endif %}>
             <label for="{{ question.id }}">
-                {{ variant.choice_letter }} - {{ variant.text }}
+                <b>{{ variant.is_correct_answer|yesno:'+,-' }}</b>{{ variant.choice_letter }}. {{ variant.text }}
             </label><br>
         </li>
         {% endfor %}
