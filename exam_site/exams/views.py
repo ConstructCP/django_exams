@@ -184,46 +184,6 @@ class ExamSave(generic.View):
                                                        'datetime_str': exam_results.taken_on_as_str})
 
 
-def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
-    """
-    View for exam results.
-    Returns context for template with exam, question_json of this exam and exam score.
-    Adds to each question_json:
-        - answer variants
-        - answers provided by the user
-        - boolean indicating whether number of correct answers is 1 or more
-        - boolean indicating whether user's answers were correct
-    """
-    exam = Exam.objects.get(id=exam_id)
-    questions = Question.objects.filter(exam__id=exam_id)
-    number_of_correct_answers = 0
-    for question in questions:
-        question_id = question.id
-        answer_variants = QuestionVariant.objects.filter(question__id=question_id)
-        given_answers = request.POST.getlist(str(question.id))
-        answered_correctly = True
-        for answer_variant in answer_variants:
-            answer_variant.was_chosen = answer_variant.choice_letter in given_answers
-            if ((answer_variant.was_chosen and not answer_variant.is_correct_answer) or
-                    (not answer_variant.was_chosen and answer_variant.is_correct_answer)):
-                answered_correctly = False
-        if answered_correctly:
-            number_of_correct_answers += 1
-            question.answered_correctly = True
-        else:
-            question.answered_correctly = False
-        question.answer_variants = answer_variants
-        question.given_answers = given_answers
-        question.has_one_correct_answer = QuestionVariant.objects.filter(
-            question__id=question_id, is_correct_answer=True
-        ).count() == 1
-
-    score = number_of_correct_answers / len(questions)
-    score_percent = int(score * 100)
-    context = {'exam': exam, 'questions': questions, 'score': score_percent}
-    return render(request, 'exams/exam_results.html', context=context)
-
-
 class UploadView(generic.FormView):
     template_name = 'exams/upload.html'
     form_class = UploadForm
