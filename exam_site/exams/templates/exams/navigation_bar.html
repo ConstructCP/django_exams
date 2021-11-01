@@ -10,7 +10,7 @@
                 {{ request.user.username }}
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'exams:profile' %}">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li class="nav-item ms-1">
                     <a class="nav-link" href="{% url 'exams:logout' %}">Logout</a>

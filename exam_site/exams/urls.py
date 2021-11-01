@@ -10,6 +10,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('upload/', views.UploadView.as_view(), name='upload'),
     path('healthcheck/', views.health_check_view, name='healthcheck'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
     path('<exam_id>/setup/', views.ExamSetupView.as_view(), name='exam_setup'),
     path('<exam_id>/take/', views.ExamTakeView.as_view(), name='exam_take'),
     path('<exam_id>/save/', views.ExamSave.as_view(), name='exam_save'),

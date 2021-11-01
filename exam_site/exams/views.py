@@ -67,6 +67,11 @@ class ProfileView(generic.DetailView):
     template_name = 'exams/profile.html'
     model = ApplicationUser
 
+    def get(self, request, *args, **kwargs):
+        exam_history = ExamResults.objects.filter(user=request.user).order_by('-taken_on')
+        context = {'exam_history': exam_history}
+        return render(request, 'exams/profile.html', context=context)
+
 
 class ExamSetupView(generic.FormView):
     """ View for exam setup """
