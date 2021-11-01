@@ -3,7 +3,7 @@
 {% block title %}{{ exam.title }}{% endblock %}
 
 {% block content %}
-<form action="{% url 'exams:exam_results' exam.id %}" method="post">
+<form action="{% url 'exams:exam_save' exam.id %}" method="post">
     {% csrf_token %}
     <div class="container border ms-2 mt-2">
         <h3>{{ exam.title }}</h3>

@@ -4,16 +4,16 @@ A site where you can take exams provided you have exam question data.
 
 Supported functionality:
 * Taking exams
+  * May choose number of questions
+* Store exams history
 * Login / Registration
 * Upload exam data
 * Application as docker container
+* Menu bar with navigation
 
 To-do list:
-* User menu in navigation bar 
 * Design - search for ready templates
-* Show correct/incorrect answers on results page
-* Custom exam modes: 5, 10, x questions, all questions
-* Exam stats
+* Show correct/incorrect answers on results page (graphically)
 * Question tags
 * Change DB to Postgres
 * Django CLI command to upload exam data

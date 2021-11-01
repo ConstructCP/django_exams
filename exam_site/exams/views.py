@@ -6,12 +6,13 @@ from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from .forms import RegistrationForm, UploadForm, ExamSetupForm
-from .models import ApplicationUser, Exam, Question, QuestionVariant
+from .models import ApplicationUser, Exam, Question, QuestionVariant, ExamResults, QuestionRecorded, \
+    QuestionVariantAnswerRecorded
 
 
 class IndexView(generic.ListView):
@@ -60,6 +61,16 @@ def register(request: WSGIRequest) -> HttpResponse:
         form = RegistrationForm()
 
     return render(request, 'exams/register.html', {'form': form})
+
+
+class ProfileView(generic.DetailView):
+    template_name = 'exams/profile.html'
+    model = ApplicationUser
+
+    def get(self, request, *args, **kwargs):
+        exam_history = ExamResults.objects.filter(user=request.user).order_by('-taken_on')
+        context = {'exam_history': exam_history}
+        return render(request, 'exams/profile.html', context=context)
 
 
 class ExamSetupView(generic.FormView):
@@ -118,44 +129,64 @@ class ExamTakeView(generic.View):
         return render(request, 'exams/exam_take.html', context=context)
 
 
-def exam_result(request: WSGIRequest, exam_id: int) -> HttpResponse:
-    """
-    View for exam results.
-    Returns context for template with exam, question_json of this exam and exam score.
-    Adds to each question_json:
-        - answer variants
-        - answers provided by the user
-        - boolean indicating whether number of correct answers is 1 or more
-        - boolean indicating whether user's answers were correct
-    """
-    exam = Exam.objects.get(id=exam_id)
-    questions = Question.objects.filter(exam__id=exam_id)
-    number_of_correct_answers = 0
-    for question in questions:
-        question_id = question.id
-        answer_variants = QuestionVariant.objects.filter(question__id=question_id)
-        given_answers = request.POST.getlist(str(question.id))
-        answered_correctly = True
-        for answer_variant in answer_variants:
-            answer_variant.was_chosen = answer_variant.choice_letter in given_answers
-            if ((answer_variant.was_chosen and not answer_variant.is_correct_answer) or
-                    (not answer_variant.was_chosen and answer_variant.is_correct_answer)):
-                answered_correctly = False
-        if answered_correctly:
-            number_of_correct_answers += 1
-            question.answered_correctly = True
-        else:
-            question.answered_correctly = False
-        question.answer_variants = answer_variants
-        question.given_answers = given_answers
-        question.has_one_correct_answer = QuestionVariant.objects.filter(
-            question__id=question_id, is_correct_answer=True
-        ).count() == 1
+class ExamResultView(generic.View):
+    """ View to get or save exam results """
+    template_name = 'exams/exam_result.html'
 
-    score = number_of_correct_answers / len(questions)
-    score_percent = int(score * 100)
-    context = {'exam': exam, 'questions': questions, 'score': score_percent}
-    return render(request, 'exams/exam_results.html', context=context)
+    def get(self, request: WSGIRequest, exam_id: str, exam_record_datetime: str) -> HttpResponse:
+        """ Show exam results """
+        exam = Exam.objects.get(id=exam_id)
+        exam_record = ExamResults.objects.get(exam_id=exam_id, unique_id=exam_record_datetime)
+        # TODO Check user permissions to access this exam record
+        question_records = QuestionRecorded.objects.filter(exam_result=exam_record)
+        # question_ids = [q_record.id for q_record in question_records]
+        questions = []
+        for question_record in question_records:
+            question = Question.objects.get(id=question_record.question.id)
+            is_answer_correct = True
+            answer_variants = QuestionVariant.objects.filter(question=question)
+            for answer_variant in answer_variants:
+                answer_record = QuestionVariantAnswerRecorded.objects.get(
+                    question_recorded=question_record, question_variant=answer_variant)
+                answer_variant.was_selected = answer_record.was_selected
+                if answer_variant.was_selected ^ answer_variant.is_correct_answer:
+                    is_answer_correct = False
+            question.answer_variants = answer_variants
+            question.is_answer_correct = is_answer_correct
+            questions.append(question)
+        context = {'exam': exam, 'exam_record': exam_record, 'questions': questions}
+        return render(request, 'exams/exam_results.html', context=context)
+
+
+class ExamSave(generic.View):
+    """ View for exam results saving """
+
+    def post(self, request: WSGIRequest, exam_id: str) -> HttpResponse:
+        """ Get exam results, store in database and redirect to exam results view """
+        answers = {int(question_id): request.POST.getlist(question_id)
+                   for question_id in request.POST.keys()
+                   if 'csrf' not in question_id}
+        exam_results = ExamResults(exam_id=int(exam_id), user_id=request.user.id)
+        exam_results.save()
+        total_questions_in_exam = len(answers)
+        questions_with_correct_answers = 0
+        for question in Question.objects.filter(id__in=answers.keys()):
+            question_record = QuestionRecorded(exam_result=exam_results, question=question)
+            question_record.save()
+            is_answer_correct = True
+            for answer_variant in QuestionVariant.objects.filter(question__id=question.id):
+                was_selected = answer_variant.choice_letter in answers[question.id]
+                variant_record = QuestionVariantAnswerRecorded(
+                    question_variant=answer_variant, question_recorded=question_record, was_selected=was_selected)
+                variant_record.save()
+                if answer_variant.is_correct_answer ^ variant_record.was_selected:
+                    is_answer_correct = False
+            if is_answer_correct:
+                questions_with_correct_answers += 1
+        exam_results.score = int(questions_with_correct_answers / total_questions_in_exam * 100)
+        exam_results.save(update_fields=['score'])
+        return redirect('exams:exam_results', context={'exam_id': exam_id,
+                                                       'datetime_str': exam_results.taken_on_as_str})
 
 
 class UploadView(generic.FormView):
