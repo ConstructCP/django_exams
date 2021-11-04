@@ -1,0 +1,13 @@
+{% extends 'exams/base.html' %}
+
+{% block title %}Exam Results{% endblock %}
+
+{% block content %}
+<div class="list-group w-50 ms-2 mt-2">
+    <h3>{{ request.user.username }} Exams History</h3>
+    {% for exam in exam_history %}
+    <a href="{% url 'exams:exam_results' exam.id exam.unique_id %}" class="list-group-item list-group-item-action">
+        {{ exam.exam.title }} ({{ exam.taken_on }} / {{ exam.score }}%)</a>
+    {% endfor %}
+</div>
+{% endblock %}
