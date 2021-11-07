@@ -1,43 +1,56 @@
 {% extends 'exams/base.html' %}
+{% load static %}
 
 {% block title %}Exam Results{% endblock %}
 
 {% block content %}
-<div class="container border ms-2 mt-2">
-    <h3>Exam: {{ exam.title }}</h3>
-    <h5>Score: {{ score }}%</h5>
-</div>
+{% csrf_token %}
 {% for question in questions %}
-<div class="container border mt-2 ms-2 mb-2">
-    <h5>{{ forloop.counter }}. {{ question.title }}</h5>
-    <p>{{ question.text }}</p>
-    <ul class="list-group w-50 mt-2 ms-2 mb-2">
-        {% for variant in question.answer_variants %}
-        <li class="list-group-item">
-            <input class="form-check-input me-1"
-                   type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
-                   id="{{ question.id }}"
-                   name="{{ question.id }}"
-                   value="{{ variant.choice_letter }}"
-                   disabled="disabled"
-                   {% if variant.was_selected %}checked{% endif %}>
-            <label for="{{ question.id }}">
-                <b>{{ variant.is_correct_answer|yesno:'+,-' }}</b>{{ variant.choice_letter }}. {{ variant.text }}
-            </label><br>
-        </li>
-        {% endfor %}
-    </ul>
-    <p>
-        <a class="btn btn-primary" data-bs-toggle="collapse" href="#collapse{{ question.id }}" role="button"
-           aria-expanded="false" aria-controls="collapse{{ question.id }}">
-            Question answer explanation:
-        </a>
-    </p>
-    <div class="collapse mb-2" id="collapse{{ question.id }}">
-        <div class="card card-body">
-            {{ question.answer_explanation }}
+<div class="container mt-5">
+    <div class="d-flex justify-content-center row">
+        <div class="col-md-10 col-lg-10">
+            <div class="border">
+                <div class="question bg-white p-3 border-bottom">
+                    <div class="d-flex flex-row justify-content-left align-items-center mcq">
+                        {% if question.is_answer_correct %}
+                        <img src={% static 'images/tick.png' %} width="25" height="25">&nbsp;
+                        {% else %}
+                        <img src={% static 'images/cross.png' %} width="25" height="25">&nbsp;
+                        {% endif %}
+                        <h4>Question {{ forloop.counter }} of {{ questions|length }}</h4>
+                    </div>
+                </div>
+                <div class="question bg-white p-3 border-bottom">
+                    <div class="d-flex flex-row align-items-center question-title">
+                        <p>{{ question.text }}</p>
+                    </div>
+                    {% for variant in question.answer_variants %}
+                    <div class="ans ml-2">
+                        <label class="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}">
+                            <div style="width: 20px; display: inline-block; justify-content: center;">
+                                <input type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
+                                       id="{{ question.id }}" name="{{ question.id }}" value="{{ variant.choice_letter }}"
+                                       disabled="disabled" {% if variant.was_selected %}checked{% endif %}>
+                            </div>
+                            <div style="width: 20px; display: inline-block; justify-content: center;">
+                                {% if variant.is_correct_answer %}
+                                <img src={% static 'images/tick.png' %} width="20" height="20">
+                                {% elif not variant.is_correct_answer and variant.was_selected %}
+                                <img src={% static 'images/cross.png' %} width="20" height="20">
+                                {% endif %}
+                            </div>
+                            <div style="display: inline-block;">
+                                {{ variant.choice_letter }} - {{ variant.text }}</span>
+                            </div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+
 {% endfor %}
 {% endblock %}

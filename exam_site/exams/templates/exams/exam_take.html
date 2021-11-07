@@ -2,33 +2,43 @@
 
 {% block title %}{{ exam.title }}{% endblock %}
 
+{% load static %}
+
 {% block content %}
 <form action="{% url 'exams:exam_save' exam.id %}" method="post">
     {% csrf_token %}
-    <div class="container border ms-2 mt-2">
-        <h3>{{ exam.title }}</h3>
-        {% for question in questions %}
-        <div class="container border mt-2 ms-2 mb-2">
-            <h5>{{ forloop.counter }}. {{ question.title }}</h5>
-            <p>{{ question.text }}</p>
-            <ul class="list-group w-50 mt-2 ms-2 mb-2">
-                {% for variant in question.answer_variants %}
-                <li class="list-group-item">
-                    <input class="form-check-input me-1"
-                           type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
-                           id="{{ question.id }}"
-                           name="{{ question.id }}"
-                           value="{{ variant.choice_letter }}">
-                    <label for="{{ question.id }}">
-                        {{ variant.choice_letter }} - {{ variant.text }}
-                    </label><br>
-                </li>
-                {% endfor %}
-            </ul>
+    {% for question in questions %}
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10 col-lg-10">
+                <div class="border">
+                    <div class="question bg-white p-3 border-bottom">
+                        <div class="d-flex flex-row justify-content-between align-items-center mcq">
+                            <h4>Question {{ forloop.counter }} of {{ questions|length }}</h4><span></span>
+                        </div>
+                    </div>
+                    <div class="question bg-white p-3 border-bottom">
+                        <div class="d-flex flex-row align-items-center question-title">
+                            <p>{{ question.text }}</p>
+                        </div>
+                        {% for variant in question.answer_variants %}
+                        <div class="ans ml-2">
+                            <label class="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}">
+                                <input type="{{ question.has_one_correct_answer|yesno:'radio,checkbox' }}"
+                                   id="{{ question.id }}" name="{{ question.id }}" value="{{ variant.choice_letter }}">
+                                <span>{{ variant.choice_letter }} - {{ variant.text }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary btn-lg mt-3 mb-3">Submit results</button>
     </div>
+
+
+    {% endfor %}
+    <button type="submit" class="btn btn-primary btn-lg mt-3 mb-3">Submit results</button>
     <br><br>
 </form>
 {% endblock %}
