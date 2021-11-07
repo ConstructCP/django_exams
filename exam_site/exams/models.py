@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 
@@ -55,7 +57,6 @@ class ApplicationUser(AbstractBaseUser):
 class Exam(models.Model):
     """ Model for exam """
     title = models.CharField(max_length=200)
-    # source = models.CharField(max_length=200)
 
     def __str__(self) -> str:
         return str(self.title)
@@ -75,18 +76,21 @@ class ExamResults(models.Model):
     unique_id = models.CharField(max_length=100)
     exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
-    taken_on = CustomDateTimeField(auto_now_add=True, unique=True)
+    taken_on = CustomDateTimeField(unique=True)
     score = models.IntegerField(default=0)
 
     def __str__(self):
         return f'{self.exam.title} / user {self.user.username} ({self.taken_on})'
 
     def save(self, *args, **kwargs):
-        self.unique_id = self.taken_on_as_str
+        if self.pk is None:
+            self.taken_on = datetime.now()
+            self.unique_id = self.taken_on_as_str
+        super().save(*args, **kwargs)
 
     @property
     def taken_on_as_str(self):
-        return str(self.user) + '_' + str(self.taken_on)
+        return str(self.user) + '_' + str(self.taken_on.strftime('%Y-%M-%d_%H-%M-%S'))
 
 
 class Question(models.Model):
