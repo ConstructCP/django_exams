@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from .forms import RegistrationForm, UploadForm, ExamSetupForm
+from .forms import RegistrationForm, UploadForm, ExamSetupForm, FileParsingError
 from .models import ApplicationUser, Exam, Question, QuestionVariant, ExamResults, QuestionRecorded, \
     QuestionVariantAnswerRecorded
 
@@ -193,10 +193,6 @@ class UploadView(generic.FormView):
     template_name = 'exams/upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('exams:index')
-
-    def form_valid(self, form) -> bool:
-        form.save_exam_data(form.cleaned_data)
-        return super().form_valid(form)
 
 
 def health_check_view(request: WSGIRequest):
