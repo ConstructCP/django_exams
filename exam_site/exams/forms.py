@@ -48,6 +48,8 @@ class UploadForm(forms.Form):
         exam_title = cleaned_data.get('exam_title')
         try:
             file = cleaned_data.get('questions_file')
+            if file.content_type != 'application/json':
+                raise ValidationError('Question file must be in JSON format')
             exam_create = ExamCreate()
             parsing_errors = exam_create.create_exam(exam_title, file)
             if parsing_errors:

@@ -41,9 +41,8 @@ class ExamCreate:
 
     def get_json_from_file(self, file: IO) -> Dict:
         """ Check file format, decode and parse as JSON """
-        if file.content_type != 'application/json':
-            raise FileParsingError('Question file must be in JSON format')
-        file_contents = file.read().decode('utf-8')
+        raw_contents = file.read()
+        file_contents = file.read().decode('utf-8') if isinstance(raw_contents, bytes) else raw_contents
         json_contents = json.loads(file_contents)
         return json_contents
 
