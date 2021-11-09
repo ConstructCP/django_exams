@@ -137,7 +137,7 @@ class ExamResultView(generic.View):
     def get(self, request: WSGIRequest, exam_id: str, exam_record_datetime: str) -> HttpResponse:
         """ Return exam results """
         exam = Exam.objects.get(id=exam_id)
-        exam_record = ExamResults.objects.get(exam_id=exam_id, unique_id=exam_record_datetime)
+        exam_record = ExamResults.objects.get(exam=exam, unique_id=exam_record_datetime)
         # TODO Check user permissions to access this exam record
         question_records = QuestionRecorded.objects.filter(exam_result=exam_record)
         questions = []
