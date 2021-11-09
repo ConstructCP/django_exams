@@ -4,34 +4,32 @@
 
 {% block content %}
 <form action="{% url 'exams:login' %}" method="post">
-    errors: {{ form.errors }}
     {% csrf_token %}
     <input type="hidden" name="next" value="{% url 'exams:index' %}">
-    <section class="vh-100 gradient-custom">
+
+    <section class="">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                    <div class="card border-0">
                         <div class="card-body p-5 text-center">
-
                             <div class="mb-md-5 mt-md-4 pb-5">
-
                                 <h2 class="fw-bold mb-2 text-uppercase">Login</h2><br><br>
 
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label" for="typeEmailX">{{ form.username.label_tag }}</label>
-                                    <input type="text" id="typeEmailX" class="form-control form-control-lg" name="username"/>
+                                <div class="form-outline mb-4">
+                                    <label class="form-label" for="username">{{ form.username.label_tag }}</label>
+                                    <input type="text" id="username" class="form-control form-control-lg" name="username"/>
                                 </div>
 
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label" for="typePasswordX">{{ form.password.label_tag }}</label>
-                                    <input type="password" id="typePasswordX" class="form-control form-control-lg" name="password"/>
+                                <div class="form-outline mb-4">
+                                    <label class="form-label" for="password">{{ form.password.label_tag }}</label>
+                                    <input type="password" id="password" class="form-control form-control-lg" name="password"/>
                                 </div>
 
-                                <p class="small mb-5 pb-lg-2"><a class="text-white-50" href="#!">Forgot password?</a>
+                                <p class="small mb-5 pb-lg-2"><a class="" href="#!">Forgot password?</a>
                                 </p>
 
-                                <button class="btn btn-outline-light btn-lg px-5" type="submit">Login</button>
+                                <button class="btn btn-primary btn-lg px-5" type="submit">Login</button>
 
                                 <div class="d-flex justify-content-center text-center mt-4 pt-1">
                                     <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
@@ -57,7 +55,7 @@
 
                             <div>
                                 <p class="mb-0">Don't have an account? <a href="{% url 'exams:register' %}"
-                                                                          class="text-white-50 fw-bold">Sign Up</a></p>
+                                                                          class="text-black-50 fw-bold">Sign Up</a></p>
                             </div>
 
                         </div>

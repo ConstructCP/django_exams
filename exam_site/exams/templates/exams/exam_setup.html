@@ -3,13 +3,32 @@
 {% block title %}{{ exam.title }}{% endblock %}
 
 {% block content %}
-<div class="container border ms-2 mt-2">
+<div class="col-md-6 offset-md-3 mt-5">
+    <h1>{{ exam.title }} setup</h1>
     <form action="{% url 'exams:exam_take' exam.id %}" method="post">
         {% csrf_token %}
-        <h3>{{ exam.title }} setup</h3>
-        <label for="question_num">How many questions do you want?</label>
-        <input class="ms-2" type="text" id="question_num" name="question_quantity"><br><br>
-        <input class="mb-2" type="submit" value="Take exam">
+        <div class="form-group">
+            <label for="question_quantity">Question number</label>
+            <input type="text" name="question_quantity" class="form-control" id="question_quantity"
+                   placeholder="How many questions do you want?"
+                   required="required">
+        </div>
+        <hr>
+        {% if form.errors %}
+        {% for non_field_error in form.non_field_errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ non_field_error }}</small>
+        </div>
+        {% endfor %}
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ line }}</small>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
 {% endblock %}

@@ -7,11 +7,12 @@
 {% block content %}
 <form action="{% url 'exams:exam_save' exam.id %}" method="post">
     {% csrf_token %}
-    {% for question in questions %}
-    <div class="container mt-5">
+    <div class="container">
         <div class="d-flex justify-content-center row">
             <div class="col-md-10 col-lg-10">
+                <h3 class="text-center mt-5 mb-5">{{ exam.title }}</h3>
                 <div class="border">
+                    {% for question in questions %}
                     <div class="question bg-white p-3 border-bottom">
                         <div class="d-flex flex-row justify-content-between align-items-center mcq">
                             <h4>Question {{ forloop.counter }} of {{ questions|length }}</h4><span></span>
@@ -31,14 +32,11 @@
                         </div>
                         {% endfor %}
                     </div>
+                    {% endfor %}
                 </div>
+                <button type="submit" class="btn btn-primary btn-lg justify-content-center mt-3 mb-3">Submit results</button>
             </div>
         </div>
     </div>
-
-
-    {% endfor %}
-    <button type="submit" class="btn btn-primary btn-lg mt-3 mb-3">Submit results</button>
-    <br><br>
 </form>
 {% endblock %}

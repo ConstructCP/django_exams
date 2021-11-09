@@ -6,16 +6,17 @@
 {% block content %}
 {% csrf_token %}
 {% for question in questions %}
-<div class="container mt-5">
+<div class="container">
     <div class="d-flex justify-content-center row">
         <div class="col-md-10 col-lg-10">
+            <h3 class="text-center mt-5 mb-5">{{ exam.title }}</h3>
             <div class="border">
                 <div class="question bg-white p-3 border-bottom">
                     <div class="d-flex flex-row justify-content-left align-items-center mcq">
                         {% if question.is_answer_correct %}
-                        <img src={% static 'images/tick.png' %} width="25" height="25">&nbsp;
+                        <img src={% static 'images/tick.png' %} width="25" height="25">
                         {% else %}
-                        <img src={% static 'images/cross.png' %} width="25" height="25">&nbsp;
+                        <img src={% static 'images/cross.png' %} width="25" height="25">
                         {% endif %}
                         <h4>Question {{ forloop.counter }} of {{ questions|length }}</h4>
                     </div>
