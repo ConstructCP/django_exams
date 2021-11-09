@@ -1,4 +1,5 @@
 import random
+from typing import Dict
 
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
@@ -185,14 +186,18 @@ class ExamSave(generic.View):
         exam_results.save(update_fields=['score'])
         return redirect(reverse('exams:exam_results', kwargs={'exam_id': exam_id,
                                                               'exam_record_datetime': exam_results.taken_on_as_str}))
-        return redirect(reverse(f'exams:exam_results/{exam_id}/{exam_results.unique_id}'),
-                        context={'exam_id': exam_id, 'exam_record_datetime': exam_results.taken_on_as_str})
 
 
 class UploadView(generic.FormView):
     template_name = 'exams/upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('exams:index')
+
+    def get_form_kwargs(self) -> Dict:
+        """ Pass arguments to form within kwargs """
+        kwargs = super(UploadView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 def health_check_view(request: WSGIRequest):

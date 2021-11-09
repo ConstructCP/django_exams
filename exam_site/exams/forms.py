@@ -37,6 +37,11 @@ class UploadForm(forms.Form):
     """ Form for uploading data of a new exams"""
     exam_title = forms.CharField(label='Exam title')
     questions_file = forms.FileField(label='File with questions')
+    exam_source = forms.CharField(label='Source of exam', required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.uploader = kwargs.pop('user', None)
+        super(UploadForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         """
@@ -46,12 +51,14 @@ class UploadForm(forms.Form):
         """
         cleaned_data = super(UploadForm, self).clean()
         exam_title = cleaned_data.get('exam_title')
+        exam_source = cleaned_data.get('exam_source', None)
         try:
             file = cleaned_data.get('questions_file')
             if file.content_type != 'application/json':
                 raise ValidationError('Question file must be in JSON format')
             exam_create = ExamCreate()
-            parsing_errors = exam_create.create_exam(exam_title, file)
+            parsing_errors = exam_create.create_exam(exam_title, file, exam_source, is_user_uploaded=True,
+                                                     uploader=self.uploader)
             if parsing_errors:
                 for error in parsing_errors:
                     self.add_error(None, error)

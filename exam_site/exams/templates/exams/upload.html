@@ -9,10 +9,15 @@
     <form accept-charset="UTF-8" action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group">
-            <label for="exampleInputName">Exam title</label>
-            <input type="text" name="exam_title" class="form-control" id="exampleInputName"
+            <label for="exam_title">Exam title</label>
+            <input type="text" name="exam_title" class="form-control" id="exam_title"
                    placeholder="Enter exam title"
                    required="required">
+        </div>
+        <div class="form-group">
+            <label for="exam_source">Exam source</label>
+            <input type="text" name="exam_source" class="form-control" id="exam_source"
+                   placeholder="Enter exam source (optional)">
         </div>
         <hr>
         <div class="form-group mt-3">

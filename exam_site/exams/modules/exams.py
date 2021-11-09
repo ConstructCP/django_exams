@@ -13,9 +13,10 @@ class ExamCreate:
     def __init__(self):
         self.parsing_errors = []
 
-    def create_exam(self, title: str, file: IO) -> Union[None, List]:
+    def create_exam(self, title: str, file: IO, source: str, uploader: str = 'application',
+                    is_user_uploaded: bool = False) -> Union[None, List]:
         """ Read file, parse question data and save"""
-        exam = Exam(title=title)
+        exam = Exam(title=title, source=source, is_user_uploaded=is_user_uploaded, uploader=uploader)
         json_contents = self.get_json_from_file(file)
         questions = []
         question_answers_variants = []
@@ -42,7 +43,7 @@ class ExamCreate:
     def get_json_from_file(self, file: IO) -> Dict:
         """ Check file format, decode and parse as JSON """
         raw_contents = file.read()
-        file_contents = file.read().decode('utf-8') if isinstance(raw_contents, bytes) else raw_contents
+        file_contents = raw_contents.decode('utf-8') if isinstance(raw_contents, bytes) else raw_contents
         json_contents = json.loads(file_contents)
         return json_contents
 

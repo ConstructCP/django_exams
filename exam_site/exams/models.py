@@ -57,6 +57,9 @@ class ApplicationUser(AbstractBaseUser):
 class Exam(models.Model):
     """ Model for exam """
     title = models.CharField(max_length=200)
+    source = models.CharField(max_length=200)
+    is_user_uploaded = models.BooleanField()
+    uploader = models.CharField(max_length=200)
 
     def __str__(self) -> str:
         return str(self.title)
