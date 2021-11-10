@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-from exams.models import Exam, Question, QuestionVariant
 from exams.modules.exams import ExamCreate
 
 

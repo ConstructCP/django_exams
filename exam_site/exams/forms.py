@@ -1,11 +1,8 @@
-import json
-from typing import List, Dict, IO
-
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import ApplicationUser, Exam, Question, QuestionVariant
-from .modules.exams import ExamCreate, FileParsingError
+from .models import ApplicationUser, Question
+from .modules.exams import ExamCreate
 
 
 class RegistrationForm(forms.ModelForm):
