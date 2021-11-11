@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from .forms import RegistrationForm, UploadForm, ExamSetupForm, FileParsingError
+from .forms import RegistrationForm, UploadForm, ExamSetupForm
 from .models import ApplicationUser, Exam, Question, QuestionVariant, ExamResults, QuestionRecorded, \
     QuestionVariantAnswerRecorded
 
