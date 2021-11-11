@@ -5,7 +5,7 @@ from .models import ApplicationUser, Exam
 
 
 def create_exam(title):
-    return Exam.objects.create(title=title)
+    return Exam.objects.create(title=title, source='test')
 
 
 def create_user(username, password):

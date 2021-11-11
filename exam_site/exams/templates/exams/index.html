@@ -4,12 +4,32 @@
 
 {% block content %}
 {% if exam_list %}
-<div class="list-group w-50 ms-2 mt-2">
-    <h3>Exams list</h3>
-    {% for exam_in_list in exam_list %}
-    <a href="{% url 'exams:exam_setup' exam_in_list.id %}" class="list-group-item list-group-item-action">
-        {{ exam_in_list.title }}</a>
-    {% endfor %}
+<div class="list-group">
+    <div class="container">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10 col-lg-10">
+                <h3 class="text-center mt-5 mb-5">Exams list</h3>
+                {% for exam in exam_list %}
+                <div>
+                    <a href="{% url 'exams:exam_setup' exam.id %}"
+                       class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ exam.title }}</h5>
+                        </div>
+                        <p class="mb-1">Source: {% if exam.source %}{{ exam.source }}{% else %}unknown{% endif %}</p>
+                        <small>
+                            {% if exam.is_user_uploaded %}
+                            Uploaded by user {{ exam.uploader }}
+                            {% else %}
+                            Provided by application
+                            {% endif %}
+                        </small>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 </div>
 {% else %}
 <p>No exams are available.</p>

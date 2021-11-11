@@ -1,0 +1,27 @@
+{% extends 'exams/base.html' %}
+
+{% block title %}Exam Results{% endblock %}
+
+{% block content %}
+<div class="list-group">
+    <div class="container">
+        <div class="d-flex justify-content-center row">
+            <div class="col-md-10 col-lg-10">
+                <h3 class="text-center mt-5 mb-5">{{ request.user.username }} Exams History</h3>
+                {% for exam in exam_history %}
+                <div>
+                    <a href="{% url 'exams:exam_results' exam.exam.id exam.unique_id %}"
+                       class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ exam.exam.title }}</h5>
+                        </div>
+                        <p class="mb-1">Score: {{ exam.score }}</p>
+                        <small>{{ exam.taken_on }}</small>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

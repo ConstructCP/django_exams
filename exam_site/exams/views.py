@@ -1,4 +1,5 @@
 import random
+from typing import Dict
 
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
@@ -53,7 +54,7 @@ def register(request: WSGIRequest) -> HttpResponse:
             try:
                 validate_password(user=username, password=password)
             except ValidationError as e:
-                return render(request, 'exams/register.html', {'form': form, 'error_message': e})
+                return render(request, 'exams/register.html', context={'form': form, 'error_message': e})
             user = ApplicationUser.objects.create_user(username=username, password=password)
             user.save()
             return HttpResponseRedirect(reverse('exams:login'))
@@ -130,16 +131,15 @@ class ExamTakeView(generic.View):
 
 
 class ExamResultView(generic.View):
-    """ View to get or save exam results """
+    """ View to get exam results """
     template_name = 'exams/exam_result.html'
 
     def get(self, request: WSGIRequest, exam_id: str, exam_record_datetime: str) -> HttpResponse:
-        """ Show exam results """
+        """ Return exam results """
         exam = Exam.objects.get(id=exam_id)
-        exam_record = ExamResults.objects.get(exam_id=exam_id, unique_id=exam_record_datetime)
+        exam_record = ExamResults.objects.get(exam=exam, unique_id=exam_record_datetime)
         # TODO Check user permissions to access this exam record
         question_records = QuestionRecorded.objects.filter(exam_result=exam_record)
-        # question_ids = [q_record.id for q_record in question_records]
         questions = []
         for question_record in question_records:
             question = Question.objects.get(id=question_record.question.id)
@@ -166,27 +166,26 @@ class ExamSave(generic.View):
         answers = {int(question_id): request.POST.getlist(question_id)
                    for question_id in request.POST.keys()
                    if 'csrf' not in question_id}
-        exam_results = ExamResults(exam_id=int(exam_id), user_id=request.user.id)
-        exam_results.save()
+        exam = Exam.objects.get(id=exam_id)
+        user = ApplicationUser.objects.get(id=request.user.id)
+        exam_results = ExamResults.objects.create(exam=exam, user=user)
         total_questions_in_exam = len(answers)
         questions_with_correct_answers = 0
         for question in Question.objects.filter(id__in=answers.keys()):
-            question_record = QuestionRecorded(exam_result=exam_results, question=question)
-            question_record.save()
+            question_record = QuestionRecorded.objects.create(exam_result=exam_results, question=question)
             is_answer_correct = True
             for answer_variant in QuestionVariant.objects.filter(question__id=question.id):
                 was_selected = answer_variant.choice_letter in answers[question.id]
-                variant_record = QuestionVariantAnswerRecorded(
+                variant_record = QuestionVariantAnswerRecorded.objects.create(
                     question_variant=answer_variant, question_recorded=question_record, was_selected=was_selected)
-                variant_record.save()
                 if answer_variant.is_correct_answer ^ variant_record.was_selected:
                     is_answer_correct = False
             if is_answer_correct:
                 questions_with_correct_answers += 1
         exam_results.score = int(questions_with_correct_answers / total_questions_in_exam * 100)
         exam_results.save(update_fields=['score'])
-        return redirect('exams:exam_results', context={'exam_id': exam_id,
-                                                       'datetime_str': exam_results.taken_on_as_str})
+        return redirect(reverse('exams:exam_results', kwargs={'exam_id': exam_id,
+                                                              'exam_record_datetime': exam_results.taken_on_as_str}))
 
 
 class UploadView(generic.FormView):
@@ -194,9 +193,11 @@ class UploadView(generic.FormView):
     form_class = UploadForm
     success_url = reverse_lazy('exams:index')
 
-    def form_valid(self, form) -> bool:
-        form.save_exam_data(form.cleaned_data)
-        return super().form_valid(form)
+    def get_form_kwargs(self) -> Dict:
+        """ Pass arguments to form within kwargs """
+        kwargs = super(UploadView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 def health_check_view(request: WSGIRequest):

@@ -6,31 +6,65 @@
 <form action="{% url 'exams:login' %}" method="post">
     {% csrf_token %}
     <input type="hidden" name="next" value="{% url 'exams:index' %}">
-    <h5 class="ms-2">Please enter you user name and password</h5>
-    <div class="input-group ms-2 mt-2 w-50">
-        <span class="input-group-text w-25" id="username-span">{{ form.username.label_tag }}</span>
-        <input class="form-control" type="text" id="username" name="username">
-    </div>
-    <div class="input-group ms-2 mt-2 w-50">
-        <span class="input-group-text w-25" id="password-span">{{ form.password.label_tag }}</span>
-        <input class="form-control" type="password" id="password" name="password">
-    </div>
-    {% if form.errors %}
-    {% for non_field_error in form.non_field_errors %}
-    <div class="alert alert-warning ms-2 mt-2 w-50" role="alert">
-        <small>{{ non_field_error }}</small>
-    </div>
-    {% endfor %}
-    {% for field in form %}
-    {% for error in field.errors %}
-    <div class="alert alert-warning ms-2 mt-2 w-50" role="alert">
-        <small>{{ line }}</small>
-    </div>
-    {% endfor %}
-    {% endfor %}
-    {% endif %}
-    <div class="input-group ms-2 mt-2 w-50">
-        <button type="submit" class="btn btn-primary w-25">Login</button>
-    </div>
+
+    <section class="">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card border-0">
+                        <div class="card-body p-5 text-center">
+                            <div class="mb-md-5 mt-md-4 pb-5">
+                                <h2 class="fw-bold mb-2 text-uppercase">Login</h2><br><br>
+
+                                <div class="form-outline mb-4">
+                                    <label class="form-label" for="username">{{ form.username.label_tag }}</label>
+                                    <input type="text" id="username" class="form-control form-control-lg" name="username"/>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <label class="form-label" for="password">{{ form.password.label_tag }}</label>
+                                    <input type="password" id="password" class="form-control form-control-lg" name="password"/>
+                                </div>
+
+                                {% if form.errors %}
+                                {% for non_field_error in form.non_field_errors %}
+                                <div class="alert alert-warning" role="alert">
+                                    <small>{{ non_field_error }}</small>
+                                </div>
+                                {% endfor %}
+                                {% for field in form %}
+                                {% for error in field.errors %}
+                                <div class="alert alert-warning" role="alert">
+                                    <small>{{ line }}</small>
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                                {% endif %}
+
+                                <p class="small mb-5 pb-lg-2"><a class="" href="#!">Forgot password?</a>
+                                </p>
+
+                                <button class="btn btn-primary btn-lg px-5" type="submit">Login</button>
+
+                                <div class="d-flex justify-content-center text-center mt-4 pt-1">
+                                    <a href="#!" class="text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                                    <a href="#!" class="text-white"><i class="fab fa-twitter fa-lg mx-4 px-2"></i></a>
+                                    <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
+                                </div>
+
+                            </div>
+
+                            <div>
+                                <p class="mb-0">Don't have an account? <a href="{% url 'exams:register' %}"
+                                                                          class="text-black-50 fw-bold">Sign Up</a></p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </form>
+
 {% endblock %}

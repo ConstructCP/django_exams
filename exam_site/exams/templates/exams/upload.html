@@ -3,12 +3,44 @@
 {% block title %}Upload Exam Data{% endblock %}
 
 {% block content %}
-<div class="container border ms-2 mt-2">
-    <h3>New exam upload</h3>
-    <form class="mt-2 mb-2" action="" method="post" enctype="multipart/form-data">
+<div class="col-md-6 offset-md-3 mt-5">
+    <h1>Exam upload</h1>
+    <form accept-charset="UTF-8" action="" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Upload">
+        <div class="form-group">
+            <label for="exam_title">Exam title</label>
+            <input type="text" name="exam_title" class="form-control" id="exam_title"
+                   placeholder="Enter exam title"
+                   required="required">
+        </div>
+        <div class="form-group">
+            <label for="exam_source">Exam source</label>
+            <input type="text" name="exam_source" class="form-control" id="exam_source"
+                   placeholder="Enter exam source (optional)">
+        </div>
+        <hr>
+        <div class="form-group mt-3">
+            <label class="mr-2">Upload JSON with questions:</label>
+            <input type="file" name="questions_file" required="required">
+        </div>
+        <hr>
+        {% if form.errors %}
+        {% for non_field_error in form.non_field_errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ non_field_error }}</small>
+        </div>
+        {% endfor %}
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ line }}</small>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
+
+
 {% endblock %}

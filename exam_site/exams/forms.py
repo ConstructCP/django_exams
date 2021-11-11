@@ -1,9 +1,8 @@
-import json
-
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import ApplicationUser, Exam, Question, QuestionVariant
+from .models import ApplicationUser, Question
+from .modules.exams import ExamCreate
 
 
 class RegistrationForm(forms.ModelForm):
@@ -22,6 +21,7 @@ class ExamSetupForm(forms.Form):
         self.exam_id = kwargs.get('exam_id')
 
     def clean_question_number(self) -> bool:
+        """ Verify requested question number is less or equal total number of questions in exam """
         cleaned_data = super(ExamSetupForm, self).clean()
         questions_requested = int(cleaned_data['question_number'])
         total_question_number = Question.objects.get(exam_id=self.exam_id).count()
@@ -34,47 +34,30 @@ class UploadForm(forms.Form):
     """ Form for uploading data of a new exams"""
     exam_title = forms.CharField(label='Exam title')
     questions_file = forms.FileField(label='File with questions')
+    exam_source = forms.CharField(label='Source of exam', required=False)
 
-    def save_exam_data(self, form_data: dict) -> None:
+    def __init__(self, *args, **kwargs):
+        self.uploader = kwargs.pop('user', None)
+        super(UploadForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
         """
         Get exam title and JSON file with questions from form.
-        Parse the file, create new exam, questions and question_json answer variants
+        Parse the file, create new exam, questions and question_json answer variants.
+        In case of exceptions raised, they should be passed to form view without saving exam data.
         """
-        exam_title = form_data['exam_title']
-        exam = Exam.objects.create(title=exam_title)
-        exam.save()
-
-        questions_file = form_data['questions_file']
-        file_contents = questions_file.read().decode('utf-8')
-        json_contents = json.loads(file_contents)
-        if questions_file.content_type != 'application/json':
-            raise ValueError('Question file must be JSON')
-        for question_json in json_contents:
-            question = parse_question_data(question_json, exam)
-            parse_question_variants(question_json, question)
-
-
-def parse_question_data(question_json: dict, exam: Exam) -> Question:
-    """ Create Question object from json and save in database """
-    question = Question.objects.create(
-        exam=exam,
-        title=question_json['title'],
-        text=question_json['text'],
-        answer_explanation=question_json['answer_comment']
-    )
-    question.save()
-    return question
-
-
-def parse_question_variants(question_json: dict, question: Question) -> None:
-    """ Create several QuestionVariant objects from json and save in database """
-    correct_answers = question_json['answer']
-    for choice_letter, text in question_json['variants'].items():
-        is_correct_answer = choice_letter in correct_answers
-        question_variant = QuestionVariant.objects.create(
-            question=question,
-            choice_letter=choice_letter,
-            text=text,
-            is_correct_answer=is_correct_answer
-        )
-        question_variant.save()
+        cleaned_data = super(UploadForm, self).clean()
+        exam_title = cleaned_data.get('exam_title')
+        exam_source = cleaned_data.get('exam_source', None)
+        try:
+            file = cleaned_data.get('questions_file')
+            if file.content_type != 'application/json':
+                raise ValidationError('Question file must be in JSON format')
+            exam_create = ExamCreate()
+            parsing_errors = exam_create.create_exam(exam_title, file, exam_source, is_user_uploaded=True,
+                                                     uploader=self.uploader)
+            if parsing_errors:
+                for error in parsing_errors:
+                    self.add_error(None, error)
+        except AttributeError:
+            self.add_error(None, ValidationError('File with questions data wasn\'t provided.'))
