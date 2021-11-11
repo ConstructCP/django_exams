@@ -26,6 +26,21 @@
                                     <input type="password" id="password" class="form-control form-control-lg" name="password"/>
                                 </div>
 
+                                {% if form.errors %}
+                                {% for non_field_error in form.non_field_errors %}
+                                <div class="alert alert-warning" role="alert">
+                                    <small>{{ non_field_error }}</small>
+                                </div>
+                                {% endfor %}
+                                {% for field in form %}
+                                {% for error in field.errors %}
+                                <div class="alert alert-warning" role="alert">
+                                    <small>{{ line }}</small>
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                                {% endif %}
+
                                 <p class="small mb-5 pb-lg-2"><a class="" href="#!">Forgot password?</a>
                                 </p>
 
@@ -38,20 +53,6 @@
                                 </div>
 
                             </div>
-                            {% if form.errors %}
-                            {% for non_field_error in form.non_field_errors %}
-                            <div class="alert alert-warning" role="alert">
-                                <small>{{ non_field_error }}</small>
-                            </div>
-                            {% endfor %}
-                            {% for field in form %}
-                            {% for error in field.errors %}
-                            <div class="alert alert-warning" role="alert">
-                                <small>{{ line }}</small>
-                            </div>
-                            {% endfor %}
-                            {% endfor %}
-                            {% endif %}
 
                             <div>
                                 <p class="mb-0">Don't have an account? <a href="{% url 'exams:register' %}"

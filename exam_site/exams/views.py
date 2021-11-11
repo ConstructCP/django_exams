@@ -54,7 +54,7 @@ def register(request: WSGIRequest) -> HttpResponse:
             try:
                 validate_password(user=username, password=password)
             except ValidationError as e:
-                return render(request, 'exams/register.html', {'form': form, 'error_message': e})
+                return render(request, 'exams/register.html', context={'form': form, 'error_message': e})
             user = ApplicationUser.objects.create_user(username=username, password=password)
             user.save()
             return HttpResponseRedirect(reverse('exams:login'))

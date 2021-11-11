@@ -14,6 +14,5 @@ urlpatterns = [
     path('<exam_id>/setup/', views.ExamSetupView.as_view(), name='exam_setup'),
     path('<exam_id>/take/', views.ExamTakeView.as_view(), name='exam_take'),
     path('<exam_id>/save/', views.ExamSave.as_view(), name='exam_save'),
-    path('<exam_id>/<str:exam_record_datetime>/', views.ExamResultView.as_view(), name='exam_results'),
-    # path('<exam_id>/results', views.exam_result, name='exam_results'),
+    path('<exam_id>/<str:exam_record_datetime>/', views.ExamResultView.as_view(), name='exam_results')
 ]
