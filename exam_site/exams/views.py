@@ -1,5 +1,5 @@
 import random
-from typing import Dict
+from typing import Dict, List
 
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
@@ -86,7 +86,13 @@ class ExamSetupView(generic.FormView):
         exam = Exam.objects.get(id=exam_id)
         context = super().get_context_data(**kwargs)
         context['exam'] = exam
+        context['question_number_preconfigs'] = self.get_question_number_preconfigs()
         return context
+
+    @staticmethod
+    def get_question_number_preconfigs() -> List:
+        """ Returns list of most popular exam question numbers """
+        return [5, 10, 20, 30, 50, 'All', 'Custom']
 
     def form_valid(self, form) -> bool:
         self.question_number = int(form.cleaned_data().get('question_number'))
@@ -109,9 +115,15 @@ class ExamTakeView(generic.View):
             - answer variants
             - boolean indicating whether number of correct answers is 1 or more
         """
-        question_quantity = int(request.POST['question_quantity'])
         exam_id = int(exam_id)
         exam = Exam.objects.get(id=exam_id)
+        if request.POST['question_number'] == 'Custom':
+            question_quantity = int(request.POST['question_quantity_custom'])
+        elif request.POST['question_number'] == 'All':
+            question_quantity = exam.question_number
+        else:
+            question_quantity = int(request.POST['question_quantity'])
+
         questions = Question.objects.filter(exam_id=exam_id)
         total_question_number = questions.count()
         if question_quantity < total_question_number:

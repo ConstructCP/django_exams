@@ -64,6 +64,12 @@ class Exam(models.Model):
     def __str__(self) -> str:
         return str(self.title)
 
+    @property
+    def question_number(self) -> int:
+        """ Returns number of questions in exam """
+        return Question.objects.filter(exam=self).count()
+
+
 
 class CustomDateTimeField(models.DateTimeField):
     def value_to_string(self, obj):
