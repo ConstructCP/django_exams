@@ -128,11 +128,16 @@ class QuestionRecorded(models.Model):
 
 class QuestionReport(models.Model):
     """ Model for storing question reports """
+    STATUS_NEW = 'N'
+    STATUS_ACCEPTED = 'A'
+    STATUS_REJECTED = 'R'
+    STATUS_VALUES = ((STATUS_NEW, 'new'), (STATUS_ACCEPTED, 'accepted'), (STATUS_REJECTED, 'rejected'))
     question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
     reporter = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
     reported_on = CustomDateTimeField(auto_now_add=True, unique=True)
     text = models.TextField()
-    is_resolved = models.BooleanField(default=False)
+    resolution = models.TextField(default="")
+    status = models.CharField(max_length=1, choices=STATUS_VALUES, default=STATUS_NEW)
 
     def __str__(self):
         return f'Report {self.pk}/ reporter: {self.reporter.username} / question: {self.question}'
