@@ -9,19 +9,15 @@
     <p>Choose desired number of questions</p>
     <form action="{% url 'exams:exam_take' exam.id %}" method="post">
         {% csrf_token %}
-
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        {% for i in question_number_preconfigs %}
-<!--        <div class="form-check" data-toggle="buttons">-->
-
+            {% for i in question_number_preconfigs %}
             <label class="btn btn-secondary" for="option{{ i }}">
                 <input type="radio" id="option{{ i }}" name="question_number"
-                   class="custom-control-input" value="{{ i }}" style="vertical-align: middle"
-                   {% if exam.question_number < i %}disabled{% endif %}>
+                       class="custom-control-input" value="{{ i }}" style="vertical-align: middle"
+                       {% if exam.question_number < i %}disabled{% endif %}>
                 {{ i }}
             </label>
-<!--        </div>-->
-        {% endfor %}
+            {% endfor %}
         </div>
         <hr>
         <div class="form-group">

@@ -70,7 +70,6 @@ class Exam(models.Model):
         return Question.objects.filter(exam=self).count()
 
 
-
 class CustomDateTimeField(models.DateTimeField):
     def value_to_string(self, obj):
         val = self.value_from_object(obj)
@@ -113,6 +112,10 @@ class Question(models.Model):
     def __str__(self) -> str:
         return str(self.title)
 
+    @property
+    def answers(self):
+        return QuestionVariant.objects.filter(question=self)
+
 
 class QuestionRecorded(models.Model):
     """ Model for storing questions from taken exam for exam history """
@@ -121,6 +124,18 @@ class QuestionRecorded(models.Model):
 
     def __str__(self):
         return f'{self.question} / {self.exam_result}'
+
+
+class QuestionReport(models.Model):
+    """ Model for storing question reports """
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
+    reporter = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
+    reported_on = CustomDateTimeField(auto_now_add=True, unique=True)
+    text = models.TextField()
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Report {self.pk}/ reporter: {self.reporter.username} / question: {self.question}'
 
 
 class QuestionVariant(models.Model):
