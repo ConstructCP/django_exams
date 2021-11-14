@@ -215,8 +215,7 @@ class QuestionReportView(generic.FormView):
     """ View to create question report """
     template_name = 'exams/question_report.html'
     form_class = forms.QuestionReportForm
-    # TODO redirect to report page
-    success_url = reverse_lazy('exams:index')
+    success_url = reverse_lazy('exams:report_history')
 
     def get_context_data(self, **kwargs) -> Dict:
         """ Adds question object to from context """
@@ -235,5 +234,21 @@ class QuestionReportView(generic.FormView):
         return redirect(self.get_success_url())
 
 
+class QuestionReportListView(generic.ListView):
+    """ View to show current user's reports """
+    template_name = 'exams/report_history.html'
+    context_object_name = 'question_reports'
+
+    def get_queryset(self) -> QuerySet:
+        """ Return all reports submitted by current user """
+        user = self.request.user
+        user_reports = models.QuestionReport.objects.filter(reporter=user)
+        return user_reports
+
+
 def health_check_view(request: WSGIRequest) -> HttpResponse:
+    """
+    View to for application health check.
+    Return 200 response with OK
+    """
     return HttpResponse('OK')

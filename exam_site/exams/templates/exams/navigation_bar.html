@@ -19,6 +19,7 @@
                        data-bs-toggle="dropdown" aria-expanded="false">{{ request.user.username }}</a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'exams:profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'exams:report_history' %}">Report history</a></li>
                         <li>
                             <hr class="dropdown-divider"/>
                         </li>
