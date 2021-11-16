@@ -12,7 +12,7 @@
                 <h3 class="text-center mt-5 mb-5">{{ request.user.username }} Report History</h3>
                 {% for report in question_reports %}
                 <div>
-                    <a href="{% url 'exams:index' %}"
+                    <a href="{% url 'exams:report_details' report.id %}"
                        class="list-group-item list-group-item-action flex-column align-items-start">
 
                         <div class="d-flex flex-row justify-content-between align-items-center mcq">

@@ -63,6 +63,6 @@ class UploadForm(forms.Form):
             self.add_error(None, ValidationError('File with questions data wasn\'t provided.'))
 
 
-class QuestionReportForm(forms.Form):
+class QuestionReportCreateForm(forms.Form):
     """ Form for filling exam question report """
     report_text = forms.CharField(label='Report text')

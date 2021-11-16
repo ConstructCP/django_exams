@@ -211,15 +211,15 @@ class UploadView(generic.FormView):
         return kwargs
 
 
-class QuestionReportView(generic.FormView):
+class QuestionReportCreateView(generic.FormView):
     """ View to create question report """
-    template_name = 'exams/question_report.html'
-    form_class = forms.QuestionReportForm
+    template_name = 'exams/question_report_create.html'
+    form_class = forms.QuestionReportCreateForm
     success_url = reverse_lazy('exams:report_history')
 
     def get_context_data(self, **kwargs) -> Dict:
         """ Adds question object to from context """
-        context = super(QuestionReportView, self).get_context_data(**kwargs)
+        context = super(QuestionReportCreateView, self).get_context_data(**kwargs)
         question_id = self.kwargs.get('question_id')
         question = models.Question.objects.get(id=question_id)
         context['question'] = question
@@ -232,6 +232,16 @@ class QuestionReportView(generic.FormView):
         question = models.Question.objects.get(id=question_id)
         models.QuestionReport.objects.create(question=question, reporter=self.request.user, text=report_text)
         return redirect(self.get_success_url())
+
+
+class QuestionReportView(generic.UpdateView):
+    template_name = 'exams/question_report_details.html'
+    model = models.QuestionReport
+    fields = ['text', 'resolution', 'status']
+    context_object_name = 'report'
+
+    def get_success_url(self):
+        return self.request.path
 
 
 class QuestionReportListView(generic.ListView):

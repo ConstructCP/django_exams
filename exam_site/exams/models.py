@@ -136,11 +136,16 @@ class QuestionReport(models.Model):
     reporter = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
     reported_on = CustomDateTimeField(auto_now_add=True, unique=True)
     text = models.TextField()
-    resolution = models.TextField(default="")
+    resolution = models.TextField(default='')
     status = models.CharField(max_length=1, choices=STATUS_VALUES, default=STATUS_NEW)
 
     def __str__(self):
         return f'Report {self.pk}/ reporter: {self.reporter.username} / question: {self.question}'
+
+    @property
+    def is_resolved(self) -> bool:
+        """ Determine whether report was resolved by admin or not """
+        return self.status in (self.STATUS_ACCEPTED, self.STATUS_REJECTED)
 
 
 class QuestionVariant(models.Model):
