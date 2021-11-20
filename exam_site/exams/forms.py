@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import ApplicationUser, Question
+from .models import ApplicationUser, Question, QuestionReport
 from .modules.exams import ExamCreate
 
 
@@ -63,6 +63,22 @@ class UploadForm(forms.Form):
             self.add_error(None, ValidationError('File with questions data wasn\'t provided.'))
 
 
-class QuestionReportCreateForm(forms.Form):
-    """ Form for filling exam question report """
-    report_text = forms.CharField(label='Report text')
+class QuestionReportCreateUpdateForm(forms.ModelForm):
+    """ Form for filling or updating exam question report """
+
+    class Meta:
+        model = QuestionReport
+        fields = ['text']
+
+    text = forms.CharField(label='Report text')
+
+
+class QuestionReportUpdateFormAdmin(forms.ModelForm):
+    """ Form for updating report as admin """
+
+    class Meta:
+        model = QuestionReport
+        fields = ['resolution', 'status']
+
+    resolution = forms.CharField(label='Report text')
+    status = forms.CharField(label='Status')

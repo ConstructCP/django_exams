@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet, Case, When, Value
 from django.http import HttpResponseRedirect, HttpResponse
@@ -61,6 +61,16 @@ def register(request: WSGIRequest) -> HttpResponse:
         form = forms.RegistrationForm()
 
     return render(request, 'exams/register.html', {'form': form})
+
+
+class AppAdminPermissionsCheckMixin:
+    def has_permissions(self):
+        return self.request.user.is_app_admin
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.has_permissions():
+            raise PermissionDenied('This is application admin functionality')
+        return super(AppAdminPermissionsCheckMixin, self).dispatch(request, *args, **kwargs)
 
 
 class ProfileView(generic.DetailView):
@@ -199,7 +209,7 @@ class ExamSave(generic.View):
                                                               'exam_record_datetime': exam_results.taken_on_as_str}))
 
 
-class UploadView(generic.FormView):
+class UploadView(AppAdminPermissionsCheckMixin, generic.FormView):
     template_name = 'exams/upload.html'
     form_class = forms.UploadForm
     success_url = reverse_lazy('exams:index')
@@ -214,7 +224,7 @@ class UploadView(generic.FormView):
 class QuestionReportCreateView(generic.FormView):
     """ View to create question report """
     template_name = 'exams/question_report_create.html'
-    form_class = forms.QuestionReportCreateForm
+    form_class = forms.QuestionReportCreateUpdateForm
     success_url = reverse_lazy('exams:report_history')
 
     def get_context_data(self, **kwargs) -> Dict:
@@ -234,13 +244,25 @@ class QuestionReportCreateView(generic.FormView):
         return redirect(self.get_success_url())
 
 
-class QuestionReportView(generic.UpdateView):
-    template_name = 'exams/question_report_details.html'
+class QuestionReportViewUser(generic.UpdateView):
+    template_name = 'exams/question_report_details_user.html'
     model = models.QuestionReport
-    fields = ['text', 'resolution', 'status']
+    form_class = forms.QuestionReportCreateUpdateForm
     context_object_name = 'report'
 
     def get_success_url(self):
+        """ Redirect to the same page after update """
+        return self.request.path
+
+
+class QuestionReportViewAdmin(AppAdminPermissionsCheckMixin, generic.UpdateView):
+    template_name = 'exams/question_report_details_admin.html'
+    model = models.QuestionReport
+    form_class = forms.QuestionReportUpdateFormAdmin
+    context_object_name = 'report'
+
+    def get_success_url(self):
+        """ Redirect to the same page after update """
         return self.request.path
 
 
@@ -256,7 +278,7 @@ class QuestionReportListView(generic.ListView):
         return user_reports
 
 
-class QuestionReportListViewAdmin(generic.ListView):
+class QuestionReportListViewAdmin(AppAdminPermissionsCheckMixin, generic.ListView):
     """ View to show all reports to user """
     template_name = 'exams/question_report_list_admin.html'
     context_object_name = 'question_reports'

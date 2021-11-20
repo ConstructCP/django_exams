@@ -30,59 +30,8 @@
         </ul>
     </div>
     <hr>
-    <h4>Report</h4>
-    <form method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="text">Report text</label>
-            <textarea class="form-control" rows="3" id="text" name="text"
-                      {% if report.is_resolved or report.reporter != request.user %} disabled {% endif %}
-            >{{ report.text }}
-            </textarea>
-        </div>
-        <div class="form-group">
-            <label for="resolution">Report resolution</label>
-            <textarea class="form-control" rows="3" id="resolution" name="resolution"
-                      placeholder="Write reasons for accepting or rejecting the report"
-                      {% if report.is_resolved %} disabled {% endif %}
-            >{{ report.resolution }}
-            </textarea>
-            <!-- TODO disable if user is not admin -->
-        </div>
-        <div class="form-group">
-            <label class="radio">
-                <input type="radio" name="status" value="{{ report.STATUS_NEW }}"
-                       {% if report.status == report.STATUS_NEW %} checked {% endif %}
-                       {% if report.is_resolved %} disabled {% endif %}>New
-            </label>
-            <label class="radio">
-                <input type="radio" name="status" value="{{ report.STATUS_ACCEPTED }}"
-                       {% if report.status == report.STATUS_ACCEPTED %} checked {% endif %}
-                       {% if report.is_resolved %} disabled {% endif %}>Accepted
-            </label>
-            <label class="radio">
-                <input type="radio" name="status" value="{{ report.STATUS_REJECTED }}"
-                       {% if report.status == report.STATUS_REJECTED %} checked {% endif %}
-                       {% if report.is_resolved %} disabled {% endif %}>Rejected
-            </label>
-        </div>
-        <hr>
-        {{ form.errors }}
-        {% if form.errors %}
-        {% for non_field_error in form.non_field_errors %}
-        <div class="alert alert-warning" role="alert">
-            <small>{{ non_field_error }}</small>
-        </div>
-        {% endfor %}
-        {% for field in form %}
-        {% for error in field.errors %}
-        <div class="alert alert-warning" role="alert">
-            <small>{{ line }}</small>
-        </div>
-        {% endfor %}
-        {% endfor %}
-        {% endif %}
-        <button type="submit" class="btn btn-primary">Update report</button>
-    </form>
+    {% block report_form %}{% endblock %}
+
+
 </div>
 {% endblock %}

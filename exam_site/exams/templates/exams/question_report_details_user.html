@@ -1,0 +1,49 @@
+{% extends 'exams/question_report_details.html' %}
+
+{% load static %}
+
+{% block report_form %}
+<h4>Report</h4>
+<hr>
+Status:
+{% if report.status == report.STATUS_NEW %}
+New <img src={% static 'images/question.png' %} width="20" height="20">
+{% elif report.status == report.STATUS_ACCEPTED %}
+Accepted <img src={% static 'images/tick.png' %} width="20" height="20">
+{% elif report.status == report.STATUS_REJECTED %}
+Rejected <img src={% static 'images/cross.png' %} width="20" height="20">
+{% endif %}
+<br>
+{% if report.resolution %}
+Resolution: {{ report.resolution }}
+{% else %}
+Waiting for resolution of the administrator...
+{% endif %}
+<hr>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="text">Report text</label>
+        <textarea class="form-control" rows="3" id="text" name="text">{{ report.text }}</textarea>
+    </div>
+    <hr>
+    {{ form.errors }}
+    {% if form.errors %}
+    {% for non_field_error in form.non_field_errors %}
+    <div class="alert alert-warning" role="alert">
+        <small>{{ non_field_error }}</small>
+    </div>
+    {% endfor %}
+    {% for field in form %}
+    {% for error in field.errors %}
+    <div class="alert alert-warning" role="alert">
+        <small>{{ line }}</small>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% endif %}
+    <button type="submit" class="btn btn-primary" {% if report.is_resolved %} disabled {% endif %}>
+        Update report
+    </button>
+</form>
+{% endblock %}
