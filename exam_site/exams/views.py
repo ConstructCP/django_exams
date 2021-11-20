@@ -5,7 +5,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Case, When, Value
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -246,13 +246,26 @@ class QuestionReportView(generic.UpdateView):
 
 class QuestionReportListView(generic.ListView):
     """ View to show current user's reports """
-    template_name = 'exams/report_history.html'
+    template_name = 'exams/question_report_list_user.html'
     context_object_name = 'question_reports'
 
     def get_queryset(self) -> QuerySet:
         """ Return all reports submitted by current user """
         user = self.request.user
         user_reports = models.QuestionReport.objects.filter(reporter=user)
+        return user_reports
+
+
+class QuestionReportListViewAdmin(generic.ListView):
+    """ View to show all reports to user """
+    template_name = 'exams/question_report_list_admin.html'
+    context_object_name = 'question_reports'
+
+    def get_queryset(self) -> QuerySet:
+        """ Return all reports """
+        user_reports = models.QuestionReport.objects.all().order_by(
+            Case(When(status=models.QuestionReport.STATUS_NEW, then=Value(0)), default=Value(1))
+        )
         return user_reports
 
 
