@@ -7,11 +7,11 @@ from django.db import models
 class ApplicationUserManager(BaseUserManager):
     """ Class that manages user creation """
 
-    def create_user(self, username: str, password: str = None) -> 'ApplicationUser':
+    def create_user(self, username: str, password: str = None, is_app_admin: bool = False) -> 'ApplicationUser':
         """ Creates usual application user """
         if not username or not password:
             raise ValueError('Both username and password must be provided.')
-        user = self.model(username=username)
+        user = self.model(username=username, is_app_admin=is_app_admin)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -30,6 +30,7 @@ class ApplicationUser(AbstractBaseUser):
     password = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_app_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     objects = ApplicationUserManager()
