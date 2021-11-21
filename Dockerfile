@@ -1,13 +1,16 @@
 # syntax=docker/dockerfile:1
 FROM python:3
 ENV PYTHONUNBUFFERED=1
-WORKDIR /django_exams
+WORKDIR /exams_site
 
-# Get code from repository
-RUN wget https://github.com/ConstructCP/django_exams/archive/refs/heads/main.zip && unzip main.zip && mv django_exams-main/* ./
+# Copy requirements.txt
+COPY requirements.txt /exams_site
 
 # Install requirements
 RUN pip install -r requirements.txt
 
+# Copy source code
+COPY . /exams_site
+
 # Run database migrations before running django
-RUN python exam_site/manage.py makemigrations exams && python exam_site/manage.py migrate exams
+RUN python exam_site/manage.py migrate admin zero && python exam_site/manage.py makemigrations exams && python exam_site/manage.py migrate exams
