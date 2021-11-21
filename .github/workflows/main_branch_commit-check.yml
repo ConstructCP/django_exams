@@ -15,7 +15,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
       - name: Setup Python
@@ -32,3 +31,10 @@ jobs:
           
       - name: Run Django Tests
         run: python exam_site/manage.py test exams
+
+      - name: Build Docker image
+      - uses: actions/checkout@v2
+        run: docker-compose up -d
+
+      - name: Application Health Check
+        run: curl 127.0.0.1:8000/exams/healthcheck
