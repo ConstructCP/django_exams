@@ -33,7 +33,6 @@ jobs:
         run: python exam_site/manage.py test exams
 
       - name: Build Docker image
-      - uses: actions/checkout@v2
         run: docker-compose up -d
 
       - name: Application Health Check
