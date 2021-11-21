@@ -1,0 +1,59 @@
+{% extends 'exams/base.html' %}
+
+{% load static %}
+
+{% block title %}Report Question{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3 mt-5">
+    <h1>Report</h1>
+    <h4>Question {{ question.title }}</h4>
+    <p>{{ question.text }}</p>
+    <h6>Answer variants:</h6>
+
+    <div class="ans ml-2">
+        <ul>
+            {% for variant in question.answers %}
+            <li>
+                <div style="width: 20px; display: inline-block; justify-content: center;">
+                    {% if variant.is_correct_answer %}
+                    <img src={% static 'images/tick.png' %} width="20" height="20">
+                    {% endif %}
+                </div>
+                <div style="display: inline-block;">
+                    <span {% if variant.is_correct_answer %} style="color: green" {% endif %}>
+                        {{ variant.choice_letter }} - {{ variant.text }}
+                    </span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <hr>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="question_quantity_custom">Describe what you would like to report</label>
+            <textarea class="form-control" rows="3" name="{{ form.report_text.name }}" id="question_quantity_custom"
+                      placeholder="Answer is incorrect, question is unclear, typo in text..."></textarea>
+
+        </div>
+        <hr>
+        {% if form.errors %}
+        {% for non_field_error in form.non_field_errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ non_field_error }}</small>
+        </div>
+        {% endfor %}
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-warning" role="alert">
+            <small>{{ line }}</small>
+        </div>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Send Report</button>
+    </form>
+</div>
+{% endblock %}

@@ -11,14 +11,22 @@
                     <a class="nav-link active" aria-current="page" href="{% url 'exams:index' %}">All Exams</a>
                 </li>
                 {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'exams:upload' %}">Upload Exam</a>
+                {% if request.user.is_app_admin %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'exams:report_list_admin' %}">Reports</a></li>
+                        <li><a class="dropdown-item" href="{% url 'exams:upload' %}">Upload Exam</a></li>
+                    </ul>
                 </li>
+                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">{{ request.user.username }}</a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url 'exams:profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'exams:report_history' %}">Report history</a></li>
                         <li>
                             <hr class="dropdown-divider"/>
                         </li>

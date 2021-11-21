@@ -1,0 +1,54 @@
+{% extends 'exams/question_report_list.html' %}
+
+{% load static %}
+
+{% block page_header %}
+{{ request.user.username }} Report History
+{% endblock %}
+
+{% block report_list %}
+{% for report in question_reports %}
+<div>
+    <a href="{% url 'exams:report_details' report.id %}"
+       class="list-group-item list-group-item-action flex-column align-items-start">
+
+        <div class="d-flex flex-row justify-content-between align-items-center mcq">
+        <span class="d-flex flex-row justify-content-left align-items-center mcq">
+            <span>
+                <h5 class="mb-1">
+                    Question {{ report.question.title }} (Exam {{ report.question.exam.title }})
+                </h5>
+            </span>
+        </span>
+            <span class="float-sm-right">
+            Status:
+            {% if report.status == report.STATUS_NEW %}
+            New <img src={% static 'images/question.png' %} width="20" height="20">
+            {% elif report.status == report.STATUS_ACCEPTED %}
+            Accepted <img src={% static 'images/tick.png' %} width="20" height="20">
+            {% elif report.status == report.STATUS_REJECTED %}
+            Rejected <img src={% static 'images/cross.png' %} width="20" height="20">
+            {% endif %}
+        </span>
+        </div>
+        <p class="mb-1">
+            {% if report.text|length > 110 %}
+            <i><b>Report summary:</b> {{ report.text|slice:":110" }}...</i>
+            {% else %}
+            <i><b>Report summary:</b> {{ report.text }}</i>
+            {% endif %}
+        </p>
+        <p>
+            {% if report.status != report.STATUS_NEW %}
+            {% if report.resolution|length > 116 %}
+            <b>Resolution:</b> {{ report.resolution|slice:":116" }}...
+            {% else %}
+            <b>Resolution:</b> {{ report.resolution }}
+            {% endif %}
+            {% endif %}
+        </p>
+        <small>{{ report.reported_on }}</small>
+    </a>
+</div>
+{% endfor %}
+{% endblock %}

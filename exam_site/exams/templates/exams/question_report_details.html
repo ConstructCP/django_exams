@@ -1,0 +1,37 @@
+{% extends 'exams/base.html' %}
+
+{% load static %}
+
+{% block title %}Report #{{ report.id }}{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3 mt-5">
+    <h1>Report #{{ report.id }}</h1>
+    <h4>Question {{ report.question.title }}</h4>
+    <p>{{ report.question.text }}</p>
+    <h6>Answer variants:</h6>
+
+    <div class="ans ml-2">
+        <ul>
+            {% for variant in report.question.answers %}
+            <li>
+                <div style="width: 20px; display: inline-block; justify-content: center;">
+                    {% if variant.is_correct_answer %}
+                    <img src={% static 'images/tick.png' %} width="20" height="20">
+                    {% endif %}
+                </div>
+                <div style="display: inline-block;">
+                    <span {% if variant.is_correct_answer %} style="color: green" {% endif %}>
+                        {{ variant.choice_letter }} - {{ variant.text }}
+                    </span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <hr>
+    {% block report_form %}{% endblock %}
+
+
+</div>
+{% endblock %}

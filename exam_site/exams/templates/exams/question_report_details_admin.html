@@ -1,0 +1,38 @@
+{% extends 'exams/question_report_details.html' %}
+
+{% block report_form %}
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="text">Report text</label>
+        <textarea class="form-control" rows="3" id="text" name="text" disabled>{{ report.text }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="resolution">Report resolution</label>
+        <textarea class="form-control" rows="3" id="resolution" name="resolution"
+                  placeholder="Write reasons for accepting or rejecting the report"
+        >{{ report.resolution }}</textarea>
+    </div>
+
+<!--    TODO edit question button which will open question in another tab (ideally)-->
+    <hr>
+    {% if form.errors %}
+    {% for non_field_error in form.non_field_errors %}
+    <div class="alert alert-warning" role="alert">
+        <small>{{ non_field_error }}</small>
+    </div>
+    {% endfor %}
+    {% for field in form %}
+    {% for error in field.errors %}
+    <div class="alert alert-warning" role="alert">
+        <small>{{ line }}</small>
+    </div>
+    {% endfor %}
+    {% endfor %}
+    {% endif %}
+    <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
+        <button type="submit" class="btn btn-success" name="status" value="{{ report.STATUS_ACCEPTED }}">Accept report</button>
+        <button type="submit" class="btn btn-danger" name="status" value="{{ report.STATUS_REJECTED }}">Reject report</button>
+    </div>
+</form>
+{% endblock %}

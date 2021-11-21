@@ -5,13 +5,25 @@
 {% block content %}
 <div class="col-md-6 offset-md-3 mt-5">
     <h1>{{ exam.title }} setup</h1>
+    <p>Full exam consists of {{ exam.question_number }} questions.</p>
+    <p>Choose desired number of questions</p>
     <form action="{% url 'exams:exam_take' exam.id %}" method="post">
         {% csrf_token %}
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            {% for i in question_number_preconfigs %}
+            <label class="btn btn-secondary" for="option{{ i }}">
+                <input type="radio" id="option{{ i }}" name="question_number"
+                       class="custom-control-input" value="{{ i }}" style="vertical-align: middle"
+                       {% if exam.question_number < i %}disabled{% endif %}>
+                {{ i }}
+            </label>
+            {% endfor %}
+        </div>
+        <hr>
         <div class="form-group">
-            <label for="question_quantity">Question number</label>
-            <input type="text" name="question_quantity" class="form-control" id="question_quantity"
-                   placeholder="How many questions do you want?"
-                   required="required">
+            <label for="question_quantity_custom">Enter custom question number ({{ exam.question_number }} max)</label>
+            <input type="number" name="question_quantity_custom" class="form-control" id="question_quantity_custom"
+                   placeholder="Enter custom question number" min="1" max="{{ exam.question_number }}">
         </div>
         <hr>
         {% if form.errors %}

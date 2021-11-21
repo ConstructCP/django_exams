@@ -7,11 +7,11 @@ from django.db import models
 class ApplicationUserManager(BaseUserManager):
     """ Class that manages user creation """
 
-    def create_user(self, username: str, password: str = None) -> 'ApplicationUser':
+    def create_user(self, username: str, password: str = None, is_app_admin: bool = False) -> 'ApplicationUser':
         """ Creates usual application user """
         if not username or not password:
             raise ValueError('Both username and password must be provided.')
-        user = self.model(username=username)
+        user = self.model(username=username, is_app_admin=is_app_admin)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -30,6 +30,7 @@ class ApplicationUser(AbstractBaseUser):
     password = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_app_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'username'
     objects = ApplicationUserManager()
@@ -63,6 +64,11 @@ class Exam(models.Model):
 
     def __str__(self) -> str:
         return str(self.title)
+
+    @property
+    def question_number(self) -> int:
+        """ Returns number of questions in exam """
+        return Question.objects.filter(exam=self).count()
 
 
 class CustomDateTimeField(models.DateTimeField):
@@ -107,6 +113,10 @@ class Question(models.Model):
     def __str__(self) -> str:
         return str(self.title)
 
+    @property
+    def answers(self):
+        return QuestionVariant.objects.filter(question=self)
+
 
 class QuestionRecorded(models.Model):
     """ Model for storing questions from taken exam for exam history """
@@ -115,6 +125,28 @@ class QuestionRecorded(models.Model):
 
     def __str__(self):
         return f'{self.question} / {self.exam_result}'
+
+
+class QuestionReport(models.Model):
+    """ Model for storing question reports """
+    STATUS_NEW = 'N'
+    STATUS_ACCEPTED = 'A'
+    STATUS_REJECTED = 'R'
+    STATUS_VALUES = ((STATUS_NEW, 'new'), (STATUS_ACCEPTED, 'accepted'), (STATUS_REJECTED, 'rejected'))
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
+    reporter = models.ForeignKey(ApplicationUser, on_delete=models.DO_NOTHING)
+    reported_on = CustomDateTimeField(auto_now_add=True, unique=True)
+    text = models.TextField()
+    resolution = models.TextField(default='')
+    status = models.CharField(max_length=1, choices=STATUS_VALUES, default=STATUS_NEW)
+
+    def __str__(self):
+        return f'Report {self.pk}/ reporter: {self.reporter.username} / question: {self.question}'
+
+    @property
+    def is_resolved(self) -> bool:
+        """ Determine whether report was resolved by admin or not """
+        return self.status in (self.STATUS_ACCEPTED, self.STATUS_REJECTED)
 
 
 class QuestionVariant(models.Model):
