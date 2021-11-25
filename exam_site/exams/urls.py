@@ -14,6 +14,7 @@ urlpatterns = [
     path('admin/reports/<int:pk>/', views.QuestionReportViewAdmin.as_view(), name='report_details_admin'),
     path('healthcheck/', views.health_check_view, name='healthcheck'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('stats/users', views.ScoreboardUsers.as_view(), name='stats_users'),
     path('questions/<question_id>/report_question', views.QuestionReportCreateView.as_view(), name='report_question'),
     path('reports/', views.QuestionReportListView.as_view(), name='report_history'),
     path('reports/<int:pk>/', views.QuestionReportViewUser.as_view(), name='report_details'),

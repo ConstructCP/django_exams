@@ -1,11 +1,13 @@
 import random
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Dict, List
 
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import QuerySet, Case, When, Value
+from django.db.models import QuerySet, Case, When, Value, Avg, Count
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -289,6 +291,53 @@ class QuestionReportListViewAdmin(AppAdminPermissionsCheckMixin, generic.ListVie
             Case(When(status=models.QuestionReport.STATUS_NEW, then=Value(0)), default=Value(1))
         )
         return user_reports
+
+
+class ScoreboardUsers(generic.ListView):
+    context_object_name = 'user_stats'
+    template_name = 'exams/user_scoreboard.html'
+
+    @dataclass
+    class Stats:
+        user: models.ApplicationUser
+        exams_taken: int
+        exams_taken_last_month: int
+        exams_taken_last_week: int
+        avg_score: float
+        avg_question_number: int
+
+    def get_queryset(self) -> List['Stats']:
+        """
+        Build stats for all non-superadmin and non-appadmin users,
+        sort by requested paprameter (from kwargs) and return
+        """
+        non_admins = models.ApplicationUser.objects.filter(is_app_admin=False)
+        user_stats = [self.build_user_stats(user) for user in non_admins]
+
+        sort_by = self.kwargs.get('sort_by', 'avg_score')
+        try:
+            user_stats = sorted(user_stats, key=lambda user: getattr(user, sort_by))
+        except AttributeError:
+            user_stats = sorted(user_stats, key=lambda user: getattr(user, 'avg_score'))
+        return user_stats
+
+    def build_user_stats(self, user: models.ApplicationUser) -> 'Stats':
+        """ Build and return stats for a single user """
+        exam_results = models.ExamResults.objects.filter(user=user)
+        exam_results = exam_results.annotate(question_num=Count('questionrecorded'))
+        date_month_ago = datetime.today() - timedelta(days=30)
+        date_week_ago = datetime.today() - timedelta(days=7)
+        stats = self.Stats(
+            user=user,
+            exams_taken=exam_results.count(),
+            exams_taken_last_month=exam_results.filter(
+                taken_on__lte=datetime.today(), taken_on__gte=date_month_ago).count(),
+            exams_taken_last_week=exam_results.filter(
+                taken_on__lte=datetime.today(), taken_on__gte=date_week_ago).count(),
+            avg_score=exam_results.aggregate(Avg('score'))['score__avg'],
+            avg_question_number=exam_results.aggregate(Avg('question_num'))['question_num__avg']
+        )
+        return stats
 
 
 def health_check_view(request: WSGIRequest) -> HttpResponse:

@@ -1,0 +1,70 @@
+{% extends 'exams/base.html' %}
+{% load static %}
+
+{% block title %}User Scoreboard{% endblock %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3 mt-5">
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">User</th>
+            <th scope="col">
+                <a href="{% url 'exams:stats_users' %}?sort_by=exams_taken">
+                    <button type="button" class="btn">
+                        Total Taken Exams
+                        <img src={% static 'images/sort.png' %} width="25" height="25">
+                    </button>
+                </a>
+            </th>
+            <th scope="col">
+                <a href="{% url 'exams:stats_users' %}?sort_by=exams_taken_last_week">
+                    <button type="button" class="btn">
+                        Total Taken Exams
+                        <img src={% static 'images/sort.png' %} width="25" height="25">
+                    </button>
+                </a>
+            </th>
+            <th scope="col">
+                <a href="{% url 'exams:stats_users' %}?sort_by=exams_taken_last_month">
+                    <button type="button" class="btn">
+                        Total Taken Exams
+                        <img src={% static 'images/sort.png' %} width="25" height="25">
+                    </button>
+                </a>
+            </th>
+            <th scope="col">
+                <a href="{% url 'exams:stats_users' %}?sort_by=avg_score">
+                    <button type="button" class="btn">
+                        Total Taken Exams
+                        <img src={% static 'images/sort.png' %} width="25" height="25">
+                    </button>
+                </a>
+            </th>
+            <th scope="col">
+                <a href="{% url 'exams:stats_users' %}?sort_by=avg_question_number">
+                    <button type="button" class="btn">
+                        Total Taken Exams
+                        <img src={% static 'images/sort.png' %} width="25" height="25">
+                    </button>
+                </a>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for stat in user_stats %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ stat.user }}</td>
+            <td>{{ stat.exams_taken }}</td>
+            <td>{{ stat.exams_taken_last_week }}</td>
+            <td>{{ stat.exams_taken_last_month }}</td>
+            <td>{{ stat.avg_score }}</td>
+            <td>{{ stat.avg_question_number }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
